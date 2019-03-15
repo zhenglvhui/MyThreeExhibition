@@ -1,0 +1,5 @@
+{
+	"presets": ["es2015","env","stage-0"],
+    "comments": false,
+    "plugins": ["transform-runtime", "transform-object-rest-spread","transform-remove-strict-mode"]
+}
