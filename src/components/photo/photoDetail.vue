@@ -18,7 +18,7 @@
         :tapToClose="true"
       />
 
-    <div class="content">{{photoDetailList.content}}</div>
+    <div class="content" v-html="photoDetailList.content"></div>
     <comment :id="id"></comment>
   </div>
 </template>
@@ -35,6 +35,7 @@ export default {
   created() {
     this.getPhotoDetailList();
     this.getPhotoSuoList();
+     window.scrollTo(0,0);
   },
   methods: {
     //获取图片详情的对象的方法
@@ -56,7 +57,6 @@ export default {
                     item.w = 600;
                     item.h = 600;
                 });
-                console.log(this.list);
             }
         })
     }

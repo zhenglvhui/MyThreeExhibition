@@ -1,6 +1,6 @@
 <template>
     <div>
-        我是search
+        我是我的
     </div>
 </template>
 <script>
@@ -11,4 +11,3 @@ export default {
 <style>
 
 </style>
-

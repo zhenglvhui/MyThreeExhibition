@@ -3,9 +3,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 import home from './components/tabbar/home.vue';
-import member from './components/tabbar/member.vue';
+import My from './components/tabbar/my.vue';
 import buyCar from './components/tabbar/buyCar.vue';
-import search from './components/tabbar/search.vue';
+import signIn from './components/tabbar/signIn.vue';
 import NewsInfo from './components/news/newsInfo.vue';
 import NewsDetail from './components/news/newsDetail.vue';
 import PhotoHome from './components/photo/photoHome.vue';
@@ -14,13 +14,16 @@ import ShopList from './components/shop/shopList.vue';
 import ShopDetail from './components/shop/shopDetail.vue';
 import searchShopDetail from './components/shop/searchShopDetail.vue';
 import shopComment from './components/shop/shopComment.vue';
+import LeaveMessage from './components/leaveMessage/leaveMessage.vue';
+import Video from './components/videoc/video.vue';
+import callMe from './components/callme/callme.vue';
 var router = new VueRouter({
     routes: [
         { path: '/', redirect: '/home' },
         { path: '/home', component: home },
-        { path: '/member', component: member },
+        { path: '/my', component: My },
         { path: '/buyCar', component: buyCar },
-        { path: '/search', component: search },
+        { path: '/signIn', component: signIn },
         { path: '/home/newsInfo', component: NewsInfo },
         { path: '/home/newsDetail/:id', component: NewsDetail },
         { path: '/home/photoHome', component: PhotoHome },
@@ -28,7 +31,10 @@ var router = new VueRouter({
         { path: '/home/shopList', name: 'shopList', component: ShopList },
         { path : '/home/shopDetail/:id',name: 'shopDetail' ,component:ShopDetail},
         { path: '/home/searchShopDetail/:id',name:'searchShopDetail', component: searchShopDetail },
-        { path: '/home/shopComment/:id',name:'shopComment', component: shopComment }
+        { path: '/home/shopComment/:id',name:'shopComment', component: shopComment },
+        { path: '/home/leaveMessage',name:'leaveMessage',component:LeaveMessage},
+        { path: '/home/video',name:'video',component:Video},
+        { path: '/home/callme',name:'callMe',component:callMe}
     ],
     linkActiveClass: 'mui-active'
 })

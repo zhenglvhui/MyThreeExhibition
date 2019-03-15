@@ -8449,6 +8449,28 @@ body > .mui-progressbar
     justify-content:space-between;
 }
 
+.comment h3[data-v-019c9c4f] {
+  font: 20px;
+}
+.comment textarea[data-v-019c9c4f] {
+  height:100px;
+  margin: 0px;
+}
+.comment .comment-list .comment-user-and-date[data-v-019c9c4f]{
+    background-color:#999;
+    font-size: 11px;
+    height: 30px;
+    line-height: 30px;
+}
+.comment .comment-list .comment-content[data-v-019c9c4f]{
+    font-size: 13px;
+    height: 40px;
+    line-height: 40px;
+}
+.mint-button--primary[data-v-019c9c4f]{
+    margin-bottom: 5px;
+}
+
 .comment h3[data-v-c650e834] {
   font: 20px;
 }
