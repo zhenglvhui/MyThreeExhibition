@@ -17,11 +17,12 @@ import shopComment from './components/shop/shopComment.vue';
 import LeaveMessage from './components/leaveMessage/leaveMessage.vue';
 import Video from './components/videoc/video.vue';
 import callMe from './components/callme/callme.vue';
+import Regiest from './components/user/regiest.vue';
 var router = new VueRouter({
     routes: [
         { path: '/', redirect: '/home' },
         { path: '/home', component: home },
-        { path: '/my', component: My },
+        { path: '/my', name:'my',component: My },
         { path: '/buyCar', component: buyCar },
         { path: '/signIn', component: signIn },
         { path: '/home/newsInfo', component: NewsInfo },
@@ -34,7 +35,8 @@ var router = new VueRouter({
         { path: '/home/shopComment/:id',name:'shopComment', component: shopComment },
         { path: '/home/leaveMessage',name:'leaveMessage',component:LeaveMessage},
         { path: '/home/video',name:'video',component:Video},
-        { path: '/home/callme',name:'callMe',component:callMe}
+        { path: '/home/callme',name:'callMe',component:callMe},
+        { path: '/user/regiest',name:'regiest', component: Regiest }
     ],
     linkActiveClass: 'mui-active'
 })
