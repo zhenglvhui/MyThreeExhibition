@@ -10,36 +10,75 @@
           </span>
         </div>
         <div class="title">
-          <mt-button type="primary" class="btn">签到</mt-button>
+          <mt-button :type="flag?'danger':'primary'" class="btn" @click="signIn" ref="btn">签到</mt-button>
           <p>已经连续签到了{{count}}天</p>
         </div>
       </div>
     </div>
     <h3 class="record">签到记录</h3>
-    <div class="record-list">
+    <div class="record-list" v-for="(item, index) in recordList" :key="index">
       <div class="record-item">
         <span>签到领取1积分</span>
-        <span>签到日期：{{date}}</span>
+        <span>签到日期：{{item.date|dateFormat}}</span>
       </div>
     </div>
   </div>
 </template>
 <script>
-var obj = JSON.parse(localStorage.getItem('signIn'))  || {record:0,date:'2019-3-15',count:0};
+import { Toast } from "mint-ui";
 // localStorage.setItem('signIn',JSON.stringify({record:0,date:'2019-3-15',count:0}));
-localStorage.removeItem('signIn')
-import moment from 'moment';
+// localStorage.removeItem('date')
+// localStorage.removeItem('flag')
+// localStorage.removeItem('count')
+// localStorage.removeItem('record')
+// var lastObj = obj.pop();
+var date = JSON.parse(localStorage.getItem('date'))  || [{date:'2019-03-15'}];
+// import moment from 'moment';
 export default {
     data() {
         return {
-            record:obj.record,
-            date:obj.date,
-            count:obj.count
+            record:0,
+            count:0,
+            recordList:date,
+            flag:false//用于判断签到按钮是否被点击过
         }
     },
+    created(){
+        this.count = localStorage.getItem('count')  || 0;
+        this.record = localStorage.getItem('record') || 0;
+        this.flag = localStorage.getItem('flag') || false;
+    },
     methods: {
-        
+        //实现登录签到功能
+        signIn(){
+            console.log(this.count)
+            if(this.$refs.btn.type == 'danger'){
+                Toast('今天你已经签到过了，明天再来吧');
+                return;
+            }
+            this.record++;
+            this.count++;
+            this.recordList.push({'date':new Date()});
+            localStorage.setItem('date',JSON.stringify(this.recordList));
+            // this.recordList = JSON.parse(localStorage.getItem('date')); 
+
+            localStorage.setItem('record', this.record);
+            this.record = JSON.parse(localStorage.getItem('record')); 
+
+             localStorage.setItem('count', this.count);
+            this.count = JSON.parse(localStorage.getItem('count'));  
+
+            //签到按钮颜色的改变
+            localStorage.setItem('flag',true);
+            this.flag = JSON.parse(localStorage.getItem('flag')); 
+            // this.$router.go(0);  
+        }
     }
+    // watch:{
+    //     // flag : function (newVal) {
+    //     //     this.flag = newVal
+    //     // }
+    // }
 };
 </script>
 <style lang="less" scope>
@@ -106,6 +145,7 @@ export default {
           display: flex;
           justify-content: space-between;
           border: 1px solid #ccc;
+          font-size: 13px;
       }
   }
 }
