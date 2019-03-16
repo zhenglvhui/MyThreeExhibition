@@ -95,8 +95,8 @@ export default {
                 img{
                     margin-left: 10px;
                     margin-right: 10px;
-                    height: 60px;
-                    width: 60px;
+                    height: 50px;
+                    width: 50px;
                 }
                 h3{
                     font-size: 13px;
