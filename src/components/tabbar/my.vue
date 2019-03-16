@@ -41,11 +41,14 @@ export default {
                 i++;
                 if(userName.trim() == item.userName && passWord.trim() == item.passWord){
                     Toast('登录成功');
+                    this.$router.push({"name" :"login","params":{"userName":item.userName}})
                     return true;
                 }
             });
-            if(i < this.verifList.length){
+            if(i > this.verifList.length){
                 Toast('用户名或者密码错误');
+            }else{
+              return;
             }
         },
         //注册方法,前往注册页面

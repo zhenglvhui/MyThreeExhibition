@@ -18,6 +18,7 @@ import LeaveMessage from './components/leaveMessage/leaveMessage.vue';
 import Video from './components/videoc/video.vue';
 import callMe from './components/callme/callme.vue';
 import Regiest from './components/user/regiest.vue';
+import Login from './components/user/login.vue';
 var router = new VueRouter({
     routes: [
         { path: '/', redirect: '/home' },
@@ -36,7 +37,8 @@ var router = new VueRouter({
         { path: '/home/leaveMessage',name:'leaveMessage',component:LeaveMessage},
         { path: '/home/video',name:'video',component:Video},
         { path: '/home/callme',name:'callMe',component:callMe},
-        { path: '/user/regiest',name:'regiest', component: Regiest }
+        { path: '/my/regiest',name:'regiest', component: Regiest },
+        { path: '/my/login/:userName', name:'login',component: Login }
     ],
     linkActiveClass: 'mui-active'
 })
