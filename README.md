@@ -1,7 +1,27 @@
-##我的项目 vue移动端页面
+# vue3-test
 
-##本项目的使用需要联网，并且使用服务器的方式打开，切记直接打开，部分功能会出现bug
+## Project setup
+```
+npm install
+```
 
-##如果遇到图片无法加载的情况，请刷新，或者检查网络
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-##图文分享上方导航栏，全部标题的后三个为空，用于测试的，查阅效果，请从第四个空间设计那栏开始看
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### 三维展厅
