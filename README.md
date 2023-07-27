@@ -1,4 +1,4 @@
-# vue3-test
+# MyThreeExhibition
 
 ## Project setup
 ```
