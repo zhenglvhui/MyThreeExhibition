@@ -141,8 +141,8 @@ let loaderModel = (): void => {
         }
         if (child.userData.name && child.userData.name.split("-")[0] == ENUM_MESH_TYPE.finger) {
           // 创建文字精灵物体
-          let text = child.userData.name.split("-")[2].split("_")[0];
-          let spriteMesh = createSpriteMesh(text);
+          let text: string = child.userData.name.split("-")[2].split("_")[0];
+          let spriteMesh: THREE.Sprite = createSpriteMesh(text);
           spriteMesh.scale.set(spriteInitScale.x, spriteInitScale.y, 1);
           spriteMesh.position.set(child.position.x, child.position.y + 3, child.position.z);
           spriteMesh.name = ENUM_MESH_TYPE.text + "-" + child.userData.name.split("-")[1];
@@ -247,9 +247,9 @@ let changeView = (isNeedTween = true, callback = () => {}, viewType?: number): v
 };
 
 let initLight = () => {
-  const light = new THREE.AmbientLight(0xffffff, 0.6);
+  const light: THREE.AmbientLight = new THREE.AmbientLight(0xffffff, 0.6);
   scene.add(light);
-  const pointLight = new THREE.PointLight(0xffffff, 0.5);
+  const pointLight: THREE.PointLight = new THREE.PointLight(0xffffff, 0.5);
   scene.add(camera);
   camera.add(pointLight);
 };
