@@ -24,8 +24,8 @@ const playAllAnimate = function (mesh: THREE.Group, animations: THREE.AnimationC
 };
 
 // 页面窗口变动，重新渲染
-const onWindowResize =  (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) => {
-  return function() {
+const onWindowResize = (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) => {
+  return function () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -128,7 +128,40 @@ const isMobile = function (): boolean {
 };
 
 // 销毁模型
-const destroyModel = function <K extends keyof HTMLElementEventMap>(container: Ref<HTMLElement | null>, animationID: number, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, modelScene: THREE.Group, scene: THREE.Scene, type?: K , throttleOnDocumentMouseMove?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any): void {
+interface ifDestroyModel<K extends keyof HTMLElementEventMap> {
+  container: Ref<HTMLElement | null>,
+  animationID: number,
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  modelScene: THREE.Group,
+  scene: THREE.Scene,
+  type?: K,
+  throttleOnDocumentMouseMove?: (this: HTMLElement, event: HTMLElementEventMap[K]) => any
+}
+
+
+// type ifKeyOfIfDestroyModel = [...[key in keyof ifDestroyModel<keyof HTMLElementEventMap>]:  ifDestroyModel<keyof HTMLElementEventMap>[key]]
+type ifKeyOfIfDestroyModel<K extends keyof HTMLElementEventMap> = [
+  container: Ref<HTMLElement | null>,
+  animationID: number,
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  modelScene: THREE.Group,
+  scene: THREE.Scene,
+  type?: K,
+  throttleOnDocumentMouseMove?: (this: HTMLElement, event: HTMLElementEventMap[K]) => void
+]
+
+function destroyModel<K extends keyof HTMLElementEventMap>(args: ifDestroyModel<K>): void;
+function destroyModel<K extends keyof HTMLElementEventMap>(...args: ifKeyOfIfDestroyModel<K>): void;
+function destroyModel<K extends keyof HTMLElementEventMap>(...args: any[]): void {
+  let fnArg: ifDestroyModel<K>;
+  if (args.length === 1) {
+    fnArg = args[0];
+  } else {
+    fnArg = { container: args[0], animationID: args[1], camera: args[2], renderer: args[3], modelScene: args[4], scene: args[5], type: args[6], throttleOnDocumentMouseMove: args[7] };
+  }
+  let { container, animationID, camera, renderer, modelScene, scene, type, throttleOnDocumentMouseMove } = fnArg;
   if (!container.value) return;
   window.removeEventListener("resize", onWindowResize(camera, renderer), false);
   if (throttleOnDocumentMouseMove && type) {
@@ -147,8 +180,32 @@ const destroyModel = function <K extends keyof HTMLElementEventMap>(container: R
   renderer.forceContextLoss();
   renderer.dispose();
   renderer.clear();
-  // renderer.domElement = null ;
 };
+
+
+
+// function destroyModel<K extends keyof HTMLElementEventMap>(container: Ref<HTMLElement | null>, animationID: number, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, modelScene: THREE.Group, scene: THREE.Scene, type?: K , throttleOnDocumentMouseMove?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any): void {
+//   if (!container.value) return;
+//   window.removeEventListener("resize", onWindowResize(camera, renderer), false);
+//   if (throttleOnDocumentMouseMove && type) {
+//     container.value.removeEventListener(type, throttleOnDocumentMouseMove, false);
+//   }
+//   cancelAnimationFrame(animationID); // 去除animationFrame
+//   modelScene.traverse((child: any) => {
+//     if (child.isMesh) {
+//       child.geometry.dispose();
+//       child.material.dispose();
+//     }
+//     child = null;
+//   });
+//   scene.remove(modelScene);
+//   scene.clear();
+//   renderer.forceContextLoss();
+//   renderer.dispose();
+//   renderer.clear();
+//   // renderer.domElement = null ;
+// };
+
 
 // 解构GlobalProperties全局变量
 const useGetGlobalProperties = function () {
