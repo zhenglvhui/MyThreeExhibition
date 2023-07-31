@@ -1,27 +1,29 @@
 # MyThreeExhibition
+### 三维展厅
+### 地址
 
-## Project setup
+- 项目地址: http://43.136.166.215/ 
+- github: https://github.com/zhenglvhui/MyThreeExhibition
+
+### 开发技术
+
+- vue3
+- typescript
+- threejs
+
+## 安装依赖
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 启动项目
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 打包项目
 ```
 npm run build
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
-### 三维展厅
