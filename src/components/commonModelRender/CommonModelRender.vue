@@ -4,6 +4,9 @@
 -->
 <template>
   <div class="page">
+    <div class="loadingIcon" v-if="isShowLoadingIcon">
+      <img src="@/assets/images/loading.png" alt="" />
+    </div>
     <!-- @click="getCamera" -->
     <div ref="container" @click="getCamera"></div>
     <Loading :progress="progress" v-if="progress != 100 && isLoading" @complete="complete" />
@@ -86,6 +89,7 @@ let renderer: THREE.WebGLRenderer; // 渲染器
 let mixer: THREE.AnimationMixer; // 动画切片
 let controls: OrbitControls;
 let modelScene: THREE.Group;
+let isShowLoadingIcon = ref(true)
 
 let getCamera = (): void => {
   console.log({ camera });
@@ -132,7 +136,7 @@ let loaderModel = (): void => {
   loader.load(
     props.glbUrl,
     (gltf) => {
-      console.log({ CommonModelRender: gltf });
+      // console.log({ CommonModelRender: gltf });
       scene?.add(gltf.scene);
       mixer = playAllAnimate(gltf.scene, gltf.animations, 1, props.playAllSpecialAnimateFn);
       modelScene = gltf.scene;
@@ -142,6 +146,9 @@ let loaderModel = (): void => {
         //   child.material.roughness = 0.5;
         // }
       });
+
+      renderer.render(scene, camera);
+      isShowLoadingIcon.value = false;
     },
     (xhr) => {
       progress.value = Math.floor((xhr.loaded / xhr.total) * 100);
@@ -261,5 +268,31 @@ onBeforeUnmount((): void => {
   background-size: auto 100%;
   background-position: right bottom;
   z-index: 5;
+}
+
+.loadingIcon {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100px;
+    height: 100px;
+    animation: loading 1s linear infinite;
+  }
+  @keyframes loading {
+    0% {
+      transform: rotate(0);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 }
 </style>

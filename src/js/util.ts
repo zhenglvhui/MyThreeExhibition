@@ -140,7 +140,6 @@ interface ifDestroyModel<K extends keyof HTMLElementEventMap> {
 }
 
 
-// type ifKeyOfIfDestroyModel = [...[key in keyof ifDestroyModel<keyof HTMLElementEventMap>]:  ifDestroyModel<keyof HTMLElementEventMap>[key]]
 type ifKeyOfIfDestroyModel<K extends keyof HTMLElementEventMap> = [
   container: Ref<HTMLElement | null>,
   animationID: number,
@@ -182,29 +181,6 @@ function destroyModel<K extends keyof HTMLElementEventMap>(...args: any[]): void
   renderer.clear();
 };
 
-
-
-// function destroyModel<K extends keyof HTMLElementEventMap>(container: Ref<HTMLElement | null>, animationID: number, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, modelScene: THREE.Group, scene: THREE.Scene, type?: K , throttleOnDocumentMouseMove?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any): void {
-//   if (!container.value) return;
-//   window.removeEventListener("resize", onWindowResize(camera, renderer), false);
-//   if (throttleOnDocumentMouseMove && type) {
-//     container.value.removeEventListener(type, throttleOnDocumentMouseMove, false);
-//   }
-//   cancelAnimationFrame(animationID); // 去除animationFrame
-//   modelScene.traverse((child: any) => {
-//     if (child.isMesh) {
-//       child.geometry.dispose();
-//       child.material.dispose();
-//     }
-//     child = null;
-//   });
-//   scene.remove(modelScene);
-//   scene.clear();
-//   renderer.forceContextLoss();
-//   renderer.dispose();
-//   renderer.clear();
-//   // renderer.domElement = null ;
-// };
 
 
 // 解构GlobalProperties全局变量

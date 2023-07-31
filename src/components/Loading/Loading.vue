@@ -83,7 +83,6 @@ let loaderModel = () => {
   loader.load(
     LoadingBlgUrl,
     (gltf) => {
-      // console.log({ gltf });
       scene?.add(gltf.scene);
       modelScene = gltf.scene;
       mixer = playAllAnimate(gltf.scene, gltf.animations, 1);
@@ -91,7 +90,6 @@ let loaderModel = () => {
     },
     (xhr) => {
       // console.log({ xhr });
-      console.log({ xhr });
     },
     (error) => {
       console.log({ loadModelError: error });

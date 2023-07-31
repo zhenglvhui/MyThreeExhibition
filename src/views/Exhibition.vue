@@ -4,6 +4,9 @@
 -->
 <template>
   <div class="Exhibition page">
+    <div class="loadingIcon" v-if="isShowLoadingIcon">
+      <img src="@/assets/images/loading.png" alt="" />
+    </div>
     <!-- 按钮位置 -->
     <div class="icon">
       <div class="item">
@@ -23,7 +26,8 @@
     </Transition>
 
     <!-- @click="getCamera" -->
-    <div ref="container"></div>
+    <div ref="container" @click="getCamera"></div>
+
     <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
   </div>
 </template>
@@ -70,6 +74,7 @@ let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
 let mainSecondPageMeshNameList: string[] = reactive([]); //  点击物体集合
 let mainSecondPageisLoading: Ref<boolean> = ref(true); //  子页面是否需要loading
 let spriteMeshList: THREE.Object3D<THREE.Event>[] = []; // 点精灵图集合
+let isShowLoadingIcon = ref(true);
 
 interface pointXY {
   x: number;
@@ -109,7 +114,6 @@ let initRender = () => {
 // 初始化相机
 let initCamera = (): void => {
   camera = new THREE.PerspectiveCamera(isMobile() ? 80 : 60, window.innerWidth / window.innerHeight, 10, 100000);
-  camera.position.set(-17, 165, 573);
 };
 
 let progress = ref(0);
@@ -151,7 +155,15 @@ let loaderModel = (): void => {
           modelScene.add(spriteMesh);
         }
       });
+
+      // three  render cpu到gpu的渲染过程会完全阻塞浏览器
       renderer.render(scene, camera);
+      isShowLoadingIcon.value = false;
+      camera.position.set(-556, 563, 227);
+      controls.target = new THREE.Vector3(0, 0, -1);
+      setTimeout(() => {
+        exhibitionInsideControls();
+      }, 800);
     },
     (xhr) => {
       let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
@@ -167,8 +179,7 @@ let loaderModel = (): void => {
 let initControls = (): void => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false; // 不允许平移
-  controls.target = new THREE.Vector3(-2.0, 26, -20);
-  exhibitionInsideControls();
+
   controls.update();
 };
 
@@ -280,8 +291,8 @@ let init = () => {
   initRender();
   initScene();
   initCamera();
-  sceneUpdate();
   initControls();
+  sceneUpdate();
   initLight();
   loaderModel();
   // statsUpdate();
@@ -572,5 +583,31 @@ onMounted(() => {});
 .scale-leave-to {
   opacity: 0;
   transform: scale(0);
+}
+
+.loadingIcon {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100px;
+    height: 100px;
+    animation: loading 1s linear infinite;
+  }
+  @keyframes loading {
+    0% {
+      transform: rotate(0);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 }
 </style>
