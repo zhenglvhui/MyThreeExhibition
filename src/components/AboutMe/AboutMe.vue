@@ -11,7 +11,7 @@
 import { ref } from "vue";
 import { isWeixin } from "@/js/util";
 import VuePdfEmbed from "vue-pdf-embed";
-const pdfurl = ref("/pdf/郑律辉前端个人简历.pdf");
+const pdfurl = ref("/pdf/郑律辉-前端工程师.pdf");
 
 const downloadPdf = (): void => {
   // if (isWeixin()) return alert("微信浏览器暂不支持下载，请切换到其他浏览器");
@@ -24,7 +24,7 @@ const downloadPdf = (): void => {
   //     const url: string = URL.createObjectURL(blob);
   const link: HTMLAnchorElement = document.createElement("a");
   link.href = "http://" + window.location.host + pdfurl.value;
-  link.download = "郑律辉前端个人简历.pdf";
+  link.download = "郑律辉-前端工程师.pdf";
   link.click();
   // URL.revokeObjectURL(url);
   // }
