@@ -17,22 +17,13 @@ enum ENUM_MESH_TYPE {
 // 视图模式
 enum ENUM_VIEW_TYPE {
   // 内部
-  internal = 1,
+  internal = "展厅内",
   //外部
-  external = 2,
+  external = "展厅外",
   //府视图
-  vertical = 3,
+  vertical = "俯视图",
 
 }
 
-const Decode_ENUM_VIEW_TYPE = {
-  [ENUM_VIEW_TYPE.internal]:"展厅内",
-  [ENUM_VIEW_TYPE.external]:"展厅外",
-  [ENUM_VIEW_TYPE.vertical]:"俯视图",
-}
 
-
-
-
-
-export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE,Decode_ENUM_VIEW_TYPE};
+export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE};

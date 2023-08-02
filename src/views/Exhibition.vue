@@ -10,7 +10,7 @@
     <!-- 按钮位置 -->
     <div class="icon">
       <div class="item">
-        <div class="text">{{ Decode_ENUM_VIEW_TYPE[currentView] }}</div>
+        <div class="text">{{ currentView }}</div>
         <div class="change" @click="changeView()"></div>
       </div>
     </div>
@@ -52,7 +52,7 @@ import {
 } from "@/js/util";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 // import { myLightHelpers } from "@/js/threeHelper";
-import { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE, Decode_ENUM_VIEW_TYPE } from "@/js/Enum";
+import { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE } from "@/js/Enum";
 import * as TWEEN from "@tweenjs/tween.js";
 import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 
@@ -237,7 +237,7 @@ let exhibitionVerticalControls = (isNeedTween = true) => {
 };
 
 //  切换不同视图
-let changeView = (isNeedTween = true, callback = () => {}, viewType?: number): void => {
+let changeView = (isNeedTween = true, callback = () => {}, viewType?: ENUM_VIEW_TYPE): void => {
   if (viewType) {
     currentView.value = viewType;
     callback();
