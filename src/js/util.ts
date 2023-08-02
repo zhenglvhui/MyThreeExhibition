@@ -128,7 +128,7 @@ const isMobile = function (): boolean {
 };
 
 // 销毁模型
-interface ifDestroyModel<K extends keyof HTMLElementEventMap> {
+interface ItDestroyModel<K extends keyof HTMLElementEventMap> {
   container: Ref<HTMLElement | null>,
   animationID: number,
   camera: THREE.PerspectiveCamera,
@@ -140,7 +140,7 @@ interface ifDestroyModel<K extends keyof HTMLElementEventMap> {
 }
 
 
-type ifKeyOfIfDestroyModel<K extends keyof HTMLElementEventMap> = [
+type ItKeyOfIfDestroyModel<K extends keyof HTMLElementEventMap> = [
   container: Ref<HTMLElement | null>,
   animationID: number,
   camera: THREE.PerspectiveCamera,
@@ -151,10 +151,10 @@ type ifKeyOfIfDestroyModel<K extends keyof HTMLElementEventMap> = [
   throttleOnDocumentMouseMove?: (this: HTMLElement, event: HTMLElementEventMap[K]) => void
 ]
 
-function destroyModel<K extends keyof HTMLElementEventMap>(args: ifDestroyModel<K>): void;
-function destroyModel<K extends keyof HTMLElementEventMap>(...args: ifKeyOfIfDestroyModel<K>): void;
+function destroyModel<K extends keyof HTMLElementEventMap>(args: ItDestroyModel<K>): void;
+function destroyModel<K extends keyof HTMLElementEventMap>(...args: ItKeyOfIfDestroyModel<K>): void;
 function destroyModel<K extends keyof HTMLElementEventMap>(...args: any[]): void {
-  let fnArg: ifDestroyModel<K>;
+  let fnArg: ItDestroyModel<K>;
   if (args.length === 1) {
     fnArg = args[0];
   } else {
