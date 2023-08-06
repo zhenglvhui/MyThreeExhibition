@@ -23,8 +23,7 @@ import mypikachuGlbUrl from "@/assets/models/mypikachu.glb";
 import robotGlbUrl from "@/assets/models/robot.glb";
 import AboutMe from "@/components/AboutMe/AboutMe.vue";
 import * as THREE from "three";
-import { ItCommonRenderData, ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/js/interface/modelRender";
-import { XYZ } from "@/js/interface/commonInterface";
+import { ItCommonRenderData, ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 
 let emits = defineEmits(["close"]);
 const props = withDefaults(defineProps<{ meshName?: string; isLoading: boolean }>(), {
@@ -259,4 +258,3 @@ onMounted(() => {
   overflow: hidden;
 }
 </style>
-@/js/interface/commonInterface

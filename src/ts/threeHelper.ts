@@ -1,5 +1,5 @@
 // three 工具类
-import { ENUM_LIGHT_HELPER } from "@/js/Enum";
+import { ENUM_LIGHT_HELPER } from "@/ts/Enum";
 import * as THREE from "three";
 import * as dat from "dat.gui";
 
