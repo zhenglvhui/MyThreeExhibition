@@ -5,6 +5,7 @@ import MyDRACOLoader from "./MyDRACOLoader";
 import { ItFnArr, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Emitter from "@/ts/util/Emitter";
+import Stats from "three/examples/jsm/libs/stats.module";
 
 interface DestroyModelParams<K extends keyof HTMLElementEventMap> {
     modelScene: THREE.Group,
@@ -18,6 +19,9 @@ class ThreeBase extends Emitter {
     protected camera!: THREE.PerspectiveCamera;
     protected renderer !: THREE.WebGLRenderer;
     protected controls!: OrbitControls;
+    protected stats:Stats = new Stats();
+
+
     constructor(option: ThreeOption) {
         super();
         this.option = option;
@@ -154,15 +158,23 @@ class ThreeBase extends Emitter {
         return mixer;
     };
 
-
+    protected initStats() {
+        this.stats.showPanel(0);
+        this.stats.dom.style.position = "absolute";
+        this.stats.dom.style.left = "0px";
+        this.stats.dom.style.top = "0px";
+        document.body.appendChild(this.stats.dom);
+    };
 
 
     // 页面窗口变动，重新渲染
     protected onWindowResize(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
-        return function () {
-            camera.aspect = window.innerWidth / window.innerHeight;
+        return () => {
+            let width: number = this.option.renderWidth || window.innerWidth;
+            let height: number = this.option.renderHeight || window.innerHeight;
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(width, height);
         };
     };
 

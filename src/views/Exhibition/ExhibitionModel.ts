@@ -73,12 +73,8 @@ export default class ExhibitionModel extends ThreeBase {
             item.visible = false;
             item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
         });
-        if (this.meshCeiling) {
-            this.meshCeiling.visible = true;
-        }
-        if (this.enterArrow) {
-            this.enterArrow.visible = false;
-        }
+        this.meshCeiling.visible = true;
+        this.enterArrow.visible = false;
         if (!isNeedTween) return;
         this.moveCameraTween(new THREE.Vector3(-6.7, 44, 497), new THREE.Vector3(5.79, 26, 26), false, () => {
             this.handerClick(this.initMeshPoint, [ENUM_MESH_TYPE.move]);
@@ -211,8 +207,8 @@ export default class ExhibitionModel extends ThreeBase {
             mainSecondPageisLoading = true;
         }
         this.$emit(ON_SHOW_SECOND_PAGE, {
-            isShowMainSecondPage:true, 
-            mainSecondPageMeshName :meshName,
+            isShowMainSecondPage: true,
+            mainSecondPageMeshName: meshName,
             mainSecondPageisLoading
         });
     };

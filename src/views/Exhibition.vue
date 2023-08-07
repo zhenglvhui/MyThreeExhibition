@@ -38,7 +38,6 @@ import * as THREE from "three";
 import Loading from "@/components/Loading/Loading.vue";
 import exhibitionGlbUrl from "@/assets/models/exhibition.glb";
 import { isMobile } from "@/ts/util/util";
-import Stats from "three/examples/jsm/libs/stats.module.js";
 import { ENUM_VIEW_TYPE } from "@/ts/Enum";
 import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 import ExhibitionModel from "@/views/Exhibition/ExhibitionModel";
@@ -46,7 +45,6 @@ import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW } from "@/ts/Constants";
 let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
-let mainSecondPageMeshNameList: string[] = reactive([]); //  点击物体集合
 let mainSecondPageisLoading: Ref<boolean> = ref(true); //  子页面是否需要loading
 let isShowLoadingIcon = ref(true);
 let container: Ref<HTMLElement | null> = ref(null);
@@ -63,16 +61,6 @@ let exhibitionModel = new ExhibitionModel({
 
 let progress = ref(0);
 
-// 性能检测
-// let stats;
-// let statsUpdate = () => {
-//   stats = new Stats();
-//   stats.setMode(0);
-//   stats.domElement.style.position = "absolute";
-//   stats.domElement.style.left = "0px";
-//   stats.domElement.style.top = "0px";
-//   document.body.appendChild(stats.domElement);
-// };
 
 let changeView = () => {
   exhibitionModel.changeView();

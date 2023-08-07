@@ -16,11 +16,9 @@
 <script setup lang="ts">
 import { onMounted, ref, defineProps, onBeforeUnmount, getCurrentInstance, Ref } from "vue";
 import * as THREE from "three";
-import * as dat from "dat.gui";
 import Loading from "@/components/Loading/Loading.vue";
 import carGlbUrl from "@/assets/models/car.glb";
 import { isMobile } from "@/ts/util/util";
-import Stats from "three/examples/jsm/libs/stats.module.js";
 import { ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 import { XYZ } from "@/ts/interface/commonInterface";
 import CommonModel from "./CommonModel";
@@ -90,17 +88,6 @@ let getCamera = (): void => {
   console.log({ camera: commonModel.getCamera()});
 };
 let progress: Ref<number> = ref(0);
-
-// 性能检测
-// let stats: Stats;
-// let statsUpdate = () => {
-//   stats = new Stats();
-//   stats.showPanel(0);
-//   stats.dom.style.position = "absolute";
-//   stats.dom.style.left = "0px";
-//   stats.dom.style.top = "0px";
-//   document.body.appendChild(stats.dom);
-// };
 
 let complete = (): void => {
   commonModel.init(
