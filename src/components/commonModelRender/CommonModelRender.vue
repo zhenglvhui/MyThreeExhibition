@@ -85,7 +85,7 @@ let commonModel = new CommonModel(
 );
 
 let getCamera = (): void => {
-  console.log({ camera: commonModel.getCamera()});
+  console.log({ camera: commonModel.getCamera() });
 };
 let progress: Ref<number> = ref(0);
 
@@ -114,7 +114,7 @@ onBeforeUnmount((): void => {
     commonModel.destroyModel({
       modelScene: commonModel.getModelScene(),
       type: "mousemove",
-      throttleOnDocumentMouseMove: commonModel.throttleOnDocumentMouseMove,
+      throttleOnDocumentMouseMove: commonModel.getThrottleOnDocumentMouseMove(),
     });
   } catch (e) {
     console.log(e);

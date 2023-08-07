@@ -273,7 +273,7 @@ class ThreeBase extends Emitter {
 
 
     // 销毁模型
-     destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
+    public destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
         let { modelScene, throttleOnDocumentMouseMove, type } = destroyModelParams;
         window.removeEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
         if (throttleOnDocumentMouseMove && type) {
@@ -296,15 +296,15 @@ class ThreeBase extends Emitter {
         THREE.Cache.clear();
     }
 
-    getScene() {
+    public getScene() {
         return this.scene;
     }
 
-    getCamera() {
+    public getCamera() {
         return this.camera;
     }
 
-    getRenderer() {
+    public getRenderer() {
         return this.renderer;
     }
 

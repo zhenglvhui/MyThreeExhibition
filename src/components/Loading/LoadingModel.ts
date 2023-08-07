@@ -25,7 +25,7 @@ export default class LoadingModel extends ThreeBase {
     };
 
 
-    sceneUpdate() {
+    private sceneUpdate() {
         this.renderer.setAnimationLoop(() => {
             if (this.progress === 100) return;
             this.renderer?.render(this.scene, this.camera);
@@ -36,7 +36,7 @@ export default class LoadingModel extends ThreeBase {
     };
 
     // 初始化
-    init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
+    public init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
         this.initScene();
         this.initWebGLRenderer();
         this.initCamera();
@@ -54,11 +54,11 @@ export default class LoadingModel extends ThreeBase {
         window.addEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
     }
 
-    getModelScene() {
+    public getModelScene() {
         return this.modelScene;
     }
 
-    setProgress(progress: number) {
+    public setProgress(progress: number) {
         this.progress = progress;
     }
 }

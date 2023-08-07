@@ -65,10 +65,10 @@ export default class CommonModel extends ThreeBase {
         this.isMouseAtMesh.value = !raycasterMesh.length;
     };
 
-    throttleOnDocumentMouseMove = throttle(this.onDocumentMouseMove.bind(this), 100);
+    private throttleOnDocumentMouseMove = throttle(this.onDocumentMouseMove.bind(this), 100);
 
     // 初始化
-    init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
+    public init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
         this.initScene();
         this.initWebGLRenderer();
         this.initCamera();
@@ -91,8 +91,11 @@ export default class CommonModel extends ThreeBase {
         this.option.renderContainer.value?.addEventListener("mousemove", this.throttleOnDocumentMouseMove, false);
     }
 
-    getModelScene() {
+    public getModelScene() {
         return this.modelScene;
+    }
+    public getThrottleOnDocumentMouseMove(){
+        return this.throttleOnDocumentMouseMove;
     }
    
 }

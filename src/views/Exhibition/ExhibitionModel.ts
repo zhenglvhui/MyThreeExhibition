@@ -172,12 +172,12 @@ export default class ExhibitionModel extends ThreeBase {
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
     };
 
-    throttleOnDocumentMouseDown = throttle(this.onDocumentMouseDown.bind(this), 100);
-    throttleOnDocumentMouseMove = throttle(this.onDocumentMouseMove.bind(this), 100);
-    throttleOnDocumentMouseUp = throttle(this.onDocumentMouseUp.bind(this), 100);
+    private throttleOnDocumentMouseDown = throttle(this.onDocumentMouseDown.bind(this), 100);
+    private throttleOnDocumentMouseMove = throttle(this.onDocumentMouseMove.bind(this), 100);
+    private throttleOnDocumentMouseUp = throttle(this.onDocumentMouseUp.bind(this), 100);
 
     // 初始化
-    init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
+    public init(loadComplete?: (gltf: GLTF) => void, loadProcess?: (xhr: ProgressEvent<EventTarget>) => void) {
         this.initScene();
         this.initWebGLRenderer();
         this.initCamera();
@@ -297,7 +297,7 @@ export default class ExhibitionModel extends ThreeBase {
     };
 
     //  切换不同视图
-    changeView(isNeedTween = true, callback = () => { }, viewType?: ENUM_VIEW_TYPE): void {
+    public changeView(isNeedTween = true, callback = () => { }, viewType?: ENUM_VIEW_TYPE): void {
         if (viewType) {
             this.currentView = viewType;
             callback();
@@ -319,7 +319,7 @@ export default class ExhibitionModel extends ThreeBase {
     };
 
 
-    getModelScene() {
+    public getModelScene() {
         return this.modelScene;
     }
 }
