@@ -273,7 +273,7 @@ class ThreeBase extends Emitter {
 
 
     // 销毁模型
-    protected destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
+     destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
         let { modelScene, throttleOnDocumentMouseMove, type } = destroyModelParams;
         window.removeEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
         if (throttleOnDocumentMouseMove && type) {

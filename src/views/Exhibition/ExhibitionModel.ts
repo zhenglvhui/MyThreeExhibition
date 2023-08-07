@@ -6,22 +6,14 @@ import * as THREE from 'three';
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
-interface pointXY {
-    x: number;
-    y: number;
-}
+import { layerXY, pointXY } from "@/ts/interface/commonInterface";
 
-interface layerXY {
-    layerX: number;
-    layerY: number;
-}
 
 export default class ExhibitionModel extends ThreeBase {
     protected option: ThreeOption;
     private modelScene!: THREE.Group;
     private mixer !: THREE.AnimationMixer;
     private clock: THREE.Clock = new THREE.Clock();
-
     private currentView: ENUM_VIEW_TYPE = ENUM_VIEW_TYPE.internal; // 当前视图
     private initMeshPoint !: THREE.Object3D<THREE.Event>; // 初始模型点位
     private meshCeiling!: THREE.Object3D<THREE.Event>; // 天花板模型
@@ -58,90 +50,6 @@ export default class ExhibitionModel extends ThreeBase {
                 this.mixer.update(this.clock.getDelta());
             }
         })
-    };
-
-    // 切换到展厅内的控制器设置
-    private exhibitionInsideControls(isNeedTween = true) {
-        this.controls.enableZoom = false; // 是否可以缩放
-        this.controls.maxPolarAngle = Math.PI * 0.7; // 最大垂直角度
-        this.controls.maxDistance = Infinity; // 最大缩放距离
-        this.controls.minDistance = -Infinity; // 最小缩放距离
-        this.controls.enableRotate = true;
-        this.spriteMeshList.map((item) => {
-            item.visible = false;
-            item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
-        });
-        this.meshCeiling.visible = true;
-        this.enterArrow.visible = false;
-        if (!isNeedTween) return;
-        this.moveCameraTween({
-            movePosition: new THREE.Vector3(-6.7, 44, 497),
-            targetPosition: new THREE.Vector3(5.79, 26, 26),
-            isInternal: false,
-            cb: () => {
-                this.handerClick(this.initMeshPoint, [ENUM_MESH_TYPE.move]);
-            }
-        });
-    };
-
-    // 切换到展厅外部的控制器设置
-    private exhibitionOutsideControls(isNeedTween = true) {
-        this.controls.enableRotate = true;
-        this.controls.maxPolarAngle = Math.PI; // 最大垂直角度
-        this.meshCeiling.visible = true;
-        this.enterArrow.visible = true;
-        this.spriteMeshList.map((item) => {
-            item.visible = false;
-            item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
-        });
-        if (!isNeedTween) return;
-        this.moveCameraTween({
-            movePosition: new THREE.Vector3(-315, 350, 478),
-            targetPosition: new THREE.Vector3(0, 0, -1),
-            isInternal: false
-        });
-    };
-
-    // 切换到俯视图的控制器设置
-    private exhibitionVerticalControls(isNeedTween = true) {
-        this.controls.enableZoom = true;
-        this.controls.enableRotate = false;
-        this.controls.maxDistance = 900; // 最大缩放距离
-        this.controls.minDistance = 500; // 最小缩放距离
-        this.meshCeiling.visible = false;
-        this.enterArrow.visible = true;
-        this.spriteMeshList.map((item) => {
-            item.visible = true;
-            item.scale.set(85, 70, 1);
-        });
-        if (!isNeedTween) return;
-        this.moveCameraTween({
-            movePosition: new THREE.Vector3(0, 672, 0),
-            targetPosition: new THREE.Vector3(0, 0, -1),
-            isInternal: false
-        });
-    };
-
-    //  切换不同视图
-    changeView(isNeedTween = true, callback = () => { }, viewType?: ENUM_VIEW_TYPE): void {
-        if (viewType) {
-            this.currentView = viewType;
-            callback();
-        } else {
-            // 展厅内
-            if (this.currentView == ENUM_VIEW_TYPE.internal) {
-                this.currentView = ENUM_VIEW_TYPE.vertical;
-                this.exhibitionVerticalControls(isNeedTween);
-                // 俯视图
-            } else if (this.currentView == ENUM_VIEW_TYPE.vertical) {
-                this.currentView = ENUM_VIEW_TYPE.external;
-                this.exhibitionOutsideControls(isNeedTween);
-            } else {
-                this.currentView = ENUM_VIEW_TYPE.internal;
-                this.exhibitionInsideControls(isNeedTween);
-            }
-        }
-        this.$emit(ON_CHANGE_VIEW, this.currentView);
     };
 
     private onDocumentMouseDown(event: MouseEvent) {
@@ -226,8 +134,6 @@ export default class ExhibitionModel extends ThreeBase {
                 return;
         }
     };
-
-    
 
     // 鼠标滑动事件时触发
     private handerMove = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
@@ -326,6 +232,92 @@ export default class ExhibitionModel extends ThreeBase {
         this.option.renderContainer.value?.addEventListener("mousedown", this.throttleOnDocumentMouseDown, false);
         this.option.renderContainer.value?.addEventListener("mouseup", this.throttleOnDocumentMouseUp, false);
     }
+
+
+    // 切换到展厅内的控制器设置
+    private exhibitionInsideControls(isNeedTween = true) {
+        this.controls.enableZoom = false; // 是否可以缩放
+        this.controls.maxPolarAngle = Math.PI * 0.7; // 最大垂直角度
+        this.controls.maxDistance = Infinity; // 最大缩放距离
+        this.controls.minDistance = -Infinity; // 最小缩放距离
+        this.controls.enableRotate = true;
+        this.spriteMeshList.map((item) => {
+            item.visible = false;
+            item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
+        });
+        this.meshCeiling.visible = true;
+        this.enterArrow.visible = false;
+        if (!isNeedTween) return;
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(-6.7, 44, 497),
+            targetPosition: new THREE.Vector3(5.79, 26, 26),
+            isInternal: false,
+            cb: () => {
+                this.handerClick(this.initMeshPoint, [ENUM_MESH_TYPE.move]);
+            }
+        });
+    };
+
+    // 切换到展厅外部的控制器设置
+    private exhibitionOutsideControls(isNeedTween = true) {
+        this.controls.enableRotate = true;
+        this.controls.maxPolarAngle = Math.PI; // 最大垂直角度
+        this.meshCeiling.visible = true;
+        this.enterArrow.visible = true;
+        this.spriteMeshList.map((item) => {
+            item.visible = false;
+            item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
+        });
+        if (!isNeedTween) return;
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(-315, 350, 478),
+            targetPosition: new THREE.Vector3(0, 0, -1),
+            isInternal: false
+        });
+    };
+
+    // 切换到俯视图的控制器设置
+    private exhibitionVerticalControls(isNeedTween = true) {
+        this.controls.enableZoom = true;
+        this.controls.enableRotate = false;
+        this.controls.maxDistance = 900; // 最大缩放距离
+        this.controls.minDistance = 500; // 最小缩放距离
+        this.meshCeiling.visible = false;
+        this.enterArrow.visible = true;
+        this.spriteMeshList.map((item) => {
+            item.visible = true;
+            item.scale.set(85, 70, 1);
+        });
+        if (!isNeedTween) return;
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(0, 672, 0),
+            targetPosition: new THREE.Vector3(0, 0, -1),
+            isInternal: false
+        });
+    };
+
+    //  切换不同视图
+    changeView(isNeedTween = true, callback = () => { }, viewType?: ENUM_VIEW_TYPE): void {
+        if (viewType) {
+            this.currentView = viewType;
+            callback();
+        } else {
+            // 展厅内
+            if (this.currentView == ENUM_VIEW_TYPE.internal) {
+                this.currentView = ENUM_VIEW_TYPE.vertical;
+                this.exhibitionVerticalControls(isNeedTween);
+                // 俯视图
+            } else if (this.currentView == ENUM_VIEW_TYPE.vertical) {
+                this.currentView = ENUM_VIEW_TYPE.external;
+                this.exhibitionOutsideControls(isNeedTween);
+            } else {
+                this.currentView = ENUM_VIEW_TYPE.internal;
+                this.exhibitionInsideControls(isNeedTween);
+            }
+        }
+        this.$emit(ON_CHANGE_VIEW, this.currentView);
+    };
+
 
     getModelScene() {
         return this.modelScene;

@@ -1,4 +1,3 @@
-import * as THREE from "three";
 // 点光源枚举
 enum ENUM_LIGHT_HELPER {
   point = 1, // 点光源
@@ -16,13 +15,9 @@ enum ENUM_MESH_TYPE {
 
 // 视图模式
 enum ENUM_VIEW_TYPE {
-  // 内部
-  internal = "展厅内",
-  //外部
-  external = "展厅外",
-  //府视图
-  vertical = "俯视图",
-
+  internal = "展厅内", // 内部
+  external = "展厅外", //外部
+  vertical = "俯视图", //府视图
 }
 
 
