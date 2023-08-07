@@ -1,4 +1,4 @@
-import { ThreeOption } from "./interface"
+import { MoveCameraTweenParams, ThreeOption, DestroyModelParams } from "./interface"
 import * as THREE from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import MyDRACOLoader from "./MyDRACOLoader";
@@ -6,12 +6,9 @@ import { ItFnArr, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Emitter from "@/ts/util/Emitter";
 import Stats from "three/examples/jsm/libs/stats.module";
+import * as TWEEN from "@tweenjs/tween.js";
 
-interface DestroyModelParams<K extends keyof HTMLElementEventMap> {
-    modelScene: THREE.Group,
-    type?: K,
-    throttleOnDocumentMouseMove?: (this: HTMLElement, event: HTMLElementEventMap[K]) => void
-}
+
 
 class ThreeBase extends Emitter {
     protected option: ThreeOption;
@@ -19,8 +16,9 @@ class ThreeBase extends Emitter {
     protected camera!: THREE.PerspectiveCamera;
     protected renderer !: THREE.WebGLRenderer;
     protected controls!: OrbitControls;
-    protected stats:Stats = new Stats();
-
+    protected stats: Stats = new Stats();
+    private globalTween!: TWEEN.Tween<THREE.Vector3>;
+    private oldControlsEnableRotate!: boolean;
 
     constructor(option: ThreeOption) {
         super();
@@ -75,7 +73,7 @@ class ThreeBase extends Emitter {
         let texture: THREE.Texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
         //使用Sprite显示文字
-        let material: THREE.SpriteMaterial = new THREE.SpriteMaterial({ map: texture, color: 0xffff00 });
+        let material: THREE.SpriteMaterial = new THREE.SpriteMaterial({ map: texture, color });
         let sprite: THREE.Sprite = new THREE.Sprite(material);
         return sprite;
     };
@@ -139,9 +137,8 @@ class ThreeBase extends Emitter {
      * @param playAllSpecialAnimateFn  执行动画要带的参数，如要调整某个动画的时长等
      * @returns 
      */
-    protected playAllAnimate(mesh: THREE.Group, animations: THREE.AnimationClip[], setFramePlay: number = 1, playAllSpecialAnimateFn: ItPlayAllSpecialAnimateFn[] = []): THREE.AnimationMixer {
-        let mixer: THREE.AnimationMixer;
-        mixer = new THREE.AnimationMixer(mesh);
+    static playAllAnimate(mesh: THREE.Group, animations: THREE.AnimationClip[], setFramePlay: number = 1, playAllSpecialAnimateFn: ItPlayAllSpecialAnimateFn[] = []): THREE.AnimationMixer {
+        let mixer: THREE.AnimationMixer  = new THREE.AnimationMixer(mesh);
         animations.forEach(function (clip): void {
             mixer.setTime(setFramePlay);
             let findItem = playAllSpecialAnimateFn.find((item) => item.animationName == clip.name);
@@ -179,7 +176,7 @@ class ThreeBase extends Emitter {
     };
 
     // 显示阴影公共处理方法  isReceiveShadow 是否投射阴影
-    protected showShowDow(mesh: any, isReceiveShadow: boolean = false, isCastShadow: boolean = false) {
+    static showShowDow(mesh: any, isReceiveShadow: boolean = false, isCastShadow: boolean = false) {
         if (isReceiveShadow || isCastShadow) {
             mesh.castShadow = true;
             mesh.material.side = THREE.DoubleSide;
@@ -191,7 +188,7 @@ class ThreeBase extends Emitter {
     };
 
     // 显示灯光公共处理方法 isCastShadow 是否显示阴影 intensityDivided导出转换的功率的倍率
-    protected showLight(light: any, isCastShadow: boolean = false, intensityDivided: number = 1) {
+    static showLight(light: any, isCastShadow: boolean = false, intensityDivided: number = 1) {
         light.intensity = light.intensity / intensityDivided;
         light.castShadow = isCastShadow;
         if (isCastShadow) {
@@ -202,7 +199,7 @@ class ThreeBase extends Emitter {
 
 
     // 开启模型灯光阴影
-    protected openShowDowAndLight(mesh: THREE.Object3D<THREE.Event>, intensityDivided?: number) {
+    static openShowDowAndLight(mesh: THREE.Object3D<THREE.Event>, intensityDivided?: number) {
         if (ThreeBase.isMesh(mesh)) {
             this.showShowDow(mesh, mesh.name.includes("rShadow"), mesh.name.includes("cShadow"));
         }
@@ -212,10 +209,71 @@ class ThreeBase extends Emitter {
     };
 
 
+    // 移动位置动画
+    protected moveCameraTween(param: MoveCameraTweenParams) {
+        let { movePosition, targetPosition, isInternal = true, cb = () => { }, animateTime = 3000 } = param;
+        let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
+        if (this.globalTween) {
+            this.globalTween.stop();
+        }
+        // 解决微任务bug
+        setTimeout(() => {
+            this.oldControlsEnableRotate = this.controls.enableRotate;
+            this.controls.enableRotate = false;
+        }, 0);
+        this.globalTween = new TWEEN.Tween(this.camera.position)
+            .to(new THREE.Vector3(movePosition.x, toTargetPositionY, movePosition.z), animateTime)
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .start()
+            .onUpdate((nowPosition, percentage) => {
+                this.controls.target.set(
+                    targetPosition.x * percentage + nowPosition.x * (1 - percentage),
+                    targetPosition.y * percentage + nowPosition.y * (1 - percentage),
+                    targetPosition.z * percentage + nowPosition.z * (1 - percentage)
+                );
+                this.controls.update();
+            })
+            .onComplete(() => {
+                this.controls.enableRotate = this.oldControlsEnableRotate;
+                // 看向物体前方一点
+                if (isInternal) {
+                    let firstMeshPositionCopy: THREE.Vector3 = movePosition.clone();
+                    let targetMeshPositionCopy: THREE.Vector3 = targetPosition.clone();
+                    firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.05);
+                    this.controls.target.set(firstMeshPositionCopy.x, targetMeshPositionCopy.y, firstMeshPositionCopy.z);
+                }
+                cb();
+            });
+    };
+
+    // 循环递归具有某个标识符的父级模型
+    /**
+     *
+     * @param {THREE.Object3D<THREE.Event>} mesh
+     * @param {Array} supportedTypes 支持的类型
+     * @param {(firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[]) => void} handerClick 回调后要被执行的函数
+     * @param {Fucntion} identifier 回调后要被执行的函数
+     */
+    static recurMeshParentName(
+        mesh: THREE.Object3D<THREE.Event>,
+        supportedTypes: string[] = [],
+        fn: (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[]) => void,
+        identifier: string = '-'
+    ): void | boolean {
+        if (mesh.userData.name && mesh.userData.name.split(identifier).length > 1) {
+            fn(mesh, supportedTypes);
+        } else if (mesh.parent == null) {
+            return false;
+        } else {
+            this.recurMeshParentName(mesh.parent, supportedTypes, fn);
+        }
+    };
+
+
 
 
     // 销毁模型
-    destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
+    protected destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
         let { modelScene, throttleOnDocumentMouseMove, type } = destroyModelParams;
         window.removeEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
         if (throttleOnDocumentMouseMove && type) {

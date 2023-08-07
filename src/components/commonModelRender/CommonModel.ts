@@ -76,9 +76,9 @@ export default class CommonModel extends ThreeBase {
         this.loaderModel((gltf) => {
             this.scene.add(gltf.scene);
             this.modelScene = gltf.scene;
-            this.mixer = this.playAllAnimate(gltf.scene, gltf.animations, 1, this.props.playAllSpecialAnimateFn);
+            this.mixer = ThreeBase.playAllAnimate(gltf.scene, gltf.animations, 1, this.props.playAllSpecialAnimateFn);
             this.modelScene.traverse((child) => {
-                this.openShowDowAndLight(child, this.props.intensityDivided);
+                ThreeBase.openShowDowAndLight(child, this.props.intensityDivided);
             });
             this.renderer?.render(this.scene, this.camera);
             this.sceneUpdate();

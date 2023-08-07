@@ -3,9 +3,7 @@ import ThreeBase from "@/ts/ThreeRender/ThreeBase";
 import { ThreeOption } from "@/ts/ThreeRender/interface";
 import { throttle } from "@/ts/util/util";
 import * as THREE from 'three';
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Ref, reactive, ref } from "vue";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
 interface pointXY {
@@ -23,7 +21,7 @@ export default class ExhibitionModel extends ThreeBase {
     private modelScene!: THREE.Group;
     private mixer !: THREE.AnimationMixer;
     private clock: THREE.Clock = new THREE.Clock();
-    private globalTween!: TWEEN.Tween<THREE.Vector3>;
+
     private currentView: ENUM_VIEW_TYPE = ENUM_VIEW_TYPE.internal; // 当前视图
     private initMeshPoint !: THREE.Object3D<THREE.Event>; // 初始模型点位
     private meshCeiling!: THREE.Object3D<THREE.Event>; // 天花板模型
@@ -76,8 +74,13 @@ export default class ExhibitionModel extends ThreeBase {
         this.meshCeiling.visible = true;
         this.enterArrow.visible = false;
         if (!isNeedTween) return;
-        this.moveCameraTween(new THREE.Vector3(-6.7, 44, 497), new THREE.Vector3(5.79, 26, 26), false, () => {
-            this.handerClick(this.initMeshPoint, [ENUM_MESH_TYPE.move]);
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(-6.7, 44, 497),
+            targetPosition: new THREE.Vector3(5.79, 26, 26),
+            isInternal: false,
+            cb: () => {
+                this.handerClick(this.initMeshPoint, [ENUM_MESH_TYPE.move]);
+            }
         });
     };
 
@@ -92,7 +95,11 @@ export default class ExhibitionModel extends ThreeBase {
             item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
         });
         if (!isNeedTween) return;
-        this.moveCameraTween(new THREE.Vector3(-315, 350, 478), new THREE.Vector3(0, 0, -1), false);
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(-315, 350, 478),
+            targetPosition: new THREE.Vector3(0, 0, -1),
+            isInternal: false
+        });
     };
 
     // 切换到俯视图的控制器设置
@@ -108,7 +115,11 @@ export default class ExhibitionModel extends ThreeBase {
             item.scale.set(85, 70, 1);
         });
         if (!isNeedTween) return;
-        this.moveCameraTween(new THREE.Vector3(0, 672, 0), new THREE.Vector3(0, 0, -1), false);
+        this.moveCameraTween({
+            movePosition: new THREE.Vector3(0, 672, 0),
+            targetPosition: new THREE.Vector3(0, 0, -1),
+            isInternal: false
+        });
     };
 
     //  切换不同视图
@@ -133,50 +144,6 @@ export default class ExhibitionModel extends ThreeBase {
         this.$emit(ON_CHANGE_VIEW, this.currentView);
     };
 
-    // 移动位置动画
-    /**
-     *
-     * @param {Vector3} movePosition  要移动到的位置
-     * @param {Vector3} targetPosition 要看向的位置
-     * @param {Boolean} isInternal 是否内部浏览
-     */
-    private moveCameraTween(movePosition: THREE.Vector3, targetPosition: THREE.Vector3, isInternal: boolean = true, callback = () => { }) {
-        let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
-        if (this.globalTween) {
-            this.globalTween.stop();
-        }
-        // 解决微任务bug
-        setTimeout(() => {
-            this.controls.enableRotate = false;
-        }, 0);
-        this.globalTween = new TWEEN.Tween(this.camera.position)
-            .to(new THREE.Vector3(movePosition.x, toTargetPositionY, movePosition.z), 3000)
-            .easing(TWEEN.Easing.Sinusoidal.InOut)
-            .start()
-            .onUpdate((nowPosition, percentage) => {
-                this.controls.target.set(
-                    targetPosition.x * percentage + nowPosition.x * (1 - percentage),
-                    targetPosition.y * percentage + nowPosition.y * (1 - percentage),
-                    targetPosition.z * percentage + nowPosition.z * (1 - percentage)
-                );
-                this.controls.update();
-            })
-            .onComplete(() => {
-                callback();
-                if (this.currentView != ENUM_VIEW_TYPE.vertical) {
-                    this.controls.enableRotate = true;
-                }
-                // 看向物体前方一点
-                if (!isInternal) return;
-                let firstMeshPositionCopy: THREE.Vector3 = movePosition.clone();
-                let targetMeshPositionCopy: THREE.Vector3 = targetPosition.clone();
-                firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.05);
-                this.controls.target.set(firstMeshPositionCopy.x, targetMeshPositionCopy.y, firstMeshPositionCopy.z);
-            });
-    };
-
-
-
     private onDocumentMouseDown(event: MouseEvent) {
         event.preventDefault();
         this.onDownLayer = { layerX: event.pageX, layerY: event.pageY };
@@ -189,7 +156,7 @@ export default class ExhibitionModel extends ThreeBase {
         let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        this.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
+        ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
     };
 
     //展示页面
@@ -239,7 +206,10 @@ export default class ExhibitionModel extends ThreeBase {
                             },
                             ENUM_VIEW_TYPE.internal
                         );
-                        this.moveCameraTween(firstMesh.position, item.position);
+                        this.moveCameraTween({
+                            movePosition: firstMesh.position,
+                            targetPosition: item.position
+                        });
                     }
                 });
                 break;
@@ -257,26 +227,7 @@ export default class ExhibitionModel extends ThreeBase {
         }
     };
 
-    // 递归循坏父级名字
-    /**
-     *
-     * @param {*} mesh
-     * @param {Array} supportedTypes 支持的类型
-     * @param {Fucntion} handerClick 回调后要被执行的函数
-     */
-    private recurMeshParentName(
-        mesh: THREE.Object3D<THREE.Event>,
-        supportedTypes: string[] = [],
-        fn: (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[]) => void = this.handerClick
-    ) {
-        if (mesh.userData.name && mesh.userData.name.split("-").length > 1) {
-            fn(mesh, supportedTypes);
-        } else if (mesh.parent == null) {
-            return;
-        } else {
-            this.recurMeshParentName(mesh.parent, supportedTypes, fn);
-        }
-    };
+    
 
     // 鼠标滑动事件时触发
     private handerMove = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
@@ -312,7 +263,7 @@ export default class ExhibitionModel extends ThreeBase {
         let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
         let firstMesh: THREE.Object3D<THREE.Event> | undefined = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        this.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
+        ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
     };
 
     throttleOnDocumentMouseDown = throttle(this.onDocumentMouseDown.bind(this), 100);
@@ -328,10 +279,10 @@ export default class ExhibitionModel extends ThreeBase {
         this.loaderModel((gltf) => {
             this.scene.add(gltf.scene);
             this.renderer.compile(this.scene, this.camera);
-            this.mixer = this.playAllAnimate(gltf.scene, gltf.animations);
+            this.mixer = ThreeBase.playAllAnimate(gltf.scene, gltf.animations);
             this.modelScene = gltf.scene;
             this.modelScene.traverse((child) => {
-                this.openShowDowAndLight(child, 1);
+                ThreeBase.openShowDowAndLight(child, 1);
                 // 前往
                 if (child.userData?.name == "move-computer") {
                     this.initMeshPoint = child;
