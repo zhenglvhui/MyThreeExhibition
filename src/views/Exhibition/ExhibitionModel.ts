@@ -302,18 +302,28 @@ export default class ExhibitionModel extends ThreeBase {
             this.currentView = viewType;
             callback();
         } else {
-            // 展厅内
-            if (this.currentView == ENUM_VIEW_TYPE.internal) {
-                this.currentView = ENUM_VIEW_TYPE.vertical;
-                this.exhibitionVerticalControls(isNeedTween);
-                // 俯视图
-            } else if (this.currentView == ENUM_VIEW_TYPE.vertical) {
-                this.currentView = ENUM_VIEW_TYPE.external;
-                this.exhibitionOutsideControls(isNeedTween);
+            const viewList = [{
+                currentView: ENUM_VIEW_TYPE.internal,
+                nextView: ENUM_VIEW_TYPE.vertical,
+                cb: this.exhibitionVerticalControls.bind(this)
+            },
+            {
+                currentView: ENUM_VIEW_TYPE.vertical,
+                nextView: ENUM_VIEW_TYPE.external,
+                cb: this.exhibitionOutsideControls.bind(this)
+            }, {
+                currentView: ENUM_VIEW_TYPE.external,
+                nextView: ENUM_VIEW_TYPE.internal,
+                cb: this.exhibitionInsideControls.bind(this)
+            }]
+            let viewItem = viewList.find(item => item.currentView === this.currentView);
+            if (viewItem) {
+                this.currentView = viewItem.nextView;
+                viewItem.cb(isNeedTween)
             } else {
-                this.currentView = ENUM_VIEW_TYPE.internal;
-                this.exhibitionInsideControls(isNeedTween);
+                throw new Error("没有找到视图");
             }
+
         }
         this.$emit(ON_CHANGE_VIEW, this.currentView);
     };

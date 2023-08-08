@@ -138,7 +138,7 @@ class ThreeBase extends Emitter {
      * @returns 
      */
     static playAllAnimate(mesh: THREE.Group, animations: THREE.AnimationClip[], setFramePlay: number = 1, playAllSpecialAnimateFn: ItPlayAllSpecialAnimateFn[] = []): THREE.AnimationMixer {
-        let mixer: THREE.AnimationMixer  = new THREE.AnimationMixer(mesh);
+        let mixer: THREE.AnimationMixer = new THREE.AnimationMixer(mesh);
         animations.forEach(function (clip): void {
             mixer.setTime(setFramePlay);
             let findItem = playAllSpecialAnimateFn.find((item) => item.animationName == clip.name);
@@ -211,6 +211,7 @@ class ThreeBase extends Emitter {
 
     // 移动位置动画
     protected moveCameraTween(param: MoveCameraTweenParams) {
+        if (!(this.camera && this.controls)) throw new Error('相机或控制器未赋值');
         let { movePosition, targetPosition, isInternal = true, cb = () => { }, animateTime = 3000 } = param;
         let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
         if (this.globalTween) {
@@ -274,6 +275,7 @@ class ThreeBase extends Emitter {
 
     // 销毁模型
     public destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
+        if (!(this.scene && this.renderer)) throw new Error('场景或渲染器未赋值');
         let { modelScene, throttleOnDocumentMouseMove, type } = destroyModelParams;
         window.removeEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
         if (throttleOnDocumentMouseMove && type) {
