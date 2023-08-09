@@ -69,6 +69,7 @@ let changeView = () => {
 //隐藏页面
 let hideSecondPage = () => {
   isShowMainSecondPage.value = false;
+  exhibitionModel.getMoveMesh().canMoveEnbled = true;
 };
 
 

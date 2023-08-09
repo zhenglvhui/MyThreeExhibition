@@ -42,6 +42,7 @@ interface MoveCameraTweenParams {
     targetPosition: THREE.Vector3, // 要看向的位置
     isInternal?: boolean, //是否内部浏览     
     cb?: (...arg: any[]) => void, // 回调  
+    updateCb?:(...arg: any[]) => void,//更新回调
     animateTime?: number // 动画执行时间      
 }
 

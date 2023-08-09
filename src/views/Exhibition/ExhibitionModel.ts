@@ -8,7 +8,8 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
 import { layerXY, pointXY } from "@/ts/interface/commonInterface";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
-let instance: ExhibitionModel | null = null; 
+import KeyControl from "@/ts/ThreeRender/KeyControl";
+let instance: ExhibitionModel | null = null;
 
 export default class ExhibitionModel extends ThreeBase {
     // @ts-ignore
@@ -23,13 +24,13 @@ export default class ExhibitionModel extends ThreeBase {
     private spriteInitScale: pointXY = { x: 8, y: 6 }; // 点精灵初始缩放大小
     private enterArrow !: THREE.Object3D<THREE.Event>; // 进入箭头
     private onDownLayer!: layerXY;
-    private MoveMesh !:MoveMesh;
+
     constructor(option: ThreeOption) {
         super(option);
         if (instance) return instance;
         instance = this;
         this.option = option;
-        this.MoveMesh = new MoveMesh(this);
+
     }
 
     private initLight() {
@@ -49,10 +50,14 @@ export default class ExhibitionModel extends ThreeBase {
 
     private sceneUpdate() {
         this.renderer.setAnimationLoop(() => {
+            const deltaTime = Math.min(0.05, this.clock.getDelta());// 每次更新时间
+            if (this.moveMesh) {
+                this.moveMesh.update(deltaTime);
+            }
             this.renderer?.render(this.scene, this.camera);
             TWEEN.update();
             if (this.mixer) {
-                this.mixer.update(this.clock.getDelta());
+                this.mixer.update(deltaTime);
             }
         })
     };
@@ -66,7 +71,7 @@ export default class ExhibitionModel extends ThreeBase {
     private onDocumentMouseUp(event: MouseEvent) {
         event.preventDefault();
         if (Math.abs(event.pageX - this.onDownLayer.layerX) > 2 || Math.abs(event.pageY - this.onDownLayer.layerY) > 2) return;
-        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
+        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene,['character']);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
@@ -86,6 +91,7 @@ export default class ExhibitionModel extends ThreeBase {
             this.mainSecondPageMeshNameList.push(meshName);
             mainSecondPageisLoading = true;
         }
+        this.moveMesh.canMoveEnbled = false;
         this.$emit(ON_SHOW_SECOND_PAGE, {
             isShowMainSecondPage: true,
             mainSecondPageMeshName: meshName,
@@ -116,7 +122,7 @@ export default class ExhibitionModel extends ThreeBase {
                             },
                             ENUM_VIEW_TYPE.internal
                         );
-                        this.moveCameraTween({
+                        this.moveMesh.moveCharacter({
                             movePosition: firstMesh.position,
                             targetPosition: item.position
                         });
@@ -217,7 +223,6 @@ export default class ExhibitionModel extends ThreeBase {
                     this.modelScene.add(spriteMesh);
                 }
             });
-
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
             this.renderer.render(this.scene, this.camera);
             this.camera.position.set(-556, 563, 227);
@@ -232,6 +237,8 @@ export default class ExhibitionModel extends ThreeBase {
             loadProcess && loadProcess(xhr)
         })
         this.initControls();
+        this.initKeyControl(this);
+        this.initMoveMesh(this);
         window.addEventListener("resize", this.onWindowResize(this.camera, this.renderer), false);
         this.option.renderContainer.value?.addEventListener("mousemove", this.throttleOnDocumentMouseMove, false);
         this.option.renderContainer.value?.addEventListener("mousedown", this.throttleOnDocumentMouseDown, false);
@@ -246,6 +253,7 @@ export default class ExhibitionModel extends ThreeBase {
         this.controls.maxDistance = Infinity; // 最大缩放距离
         this.controls.minDistance = -Infinity; // 最小缩放距离
         this.controls.enableRotate = true;
+        this.moveMesh.canMoveEnbled = true;
         this.spriteMeshList.map((item) => {
             item.visible = false;
             item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
@@ -253,7 +261,7 @@ export default class ExhibitionModel extends ThreeBase {
         this.meshCeiling.visible = true;
         this.enterArrow.visible = false;
         if (!isNeedTween) return;
-        this.moveCameraTween({
+        this.moveMesh.moveCharacter({
             movePosition: new THREE.Vector3(-6.7, 44, 497),
             targetPosition: new THREE.Vector3(5.79, 26, 26),
             isInternal: false,
@@ -269,12 +277,13 @@ export default class ExhibitionModel extends ThreeBase {
         this.controls.maxPolarAngle = Math.PI; // 最大垂直角度
         this.meshCeiling.visible = true;
         this.enterArrow.visible = true;
+        this.moveMesh.canMoveEnbled = false;
         this.spriteMeshList.map((item) => {
             item.visible = false;
             item.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
         });
         if (!isNeedTween) return;
-        this.moveCameraTween({
+        this.moveMesh.moveCharacter({
             movePosition: new THREE.Vector3(-315, 350, 478),
             targetPosition: new THREE.Vector3(0, 0, -1),
             isInternal: false
@@ -289,12 +298,13 @@ export default class ExhibitionModel extends ThreeBase {
         this.controls.minDistance = 500; // 最小缩放距离
         this.meshCeiling.visible = false;
         this.enterArrow.visible = true;
+        this.moveMesh.canMoveEnbled = false;
         this.spriteMeshList.map((item) => {
             item.visible = true;
             item.scale.set(85, 70, 1);
         });
         if (!isNeedTween) return;
-        this.moveCameraTween({
+        this.moveMesh.moveCharacter({
             movePosition: new THREE.Vector3(0, 672, 0),
             targetPosition: new THREE.Vector3(0, 0, -1),
             isInternal: false
@@ -334,5 +344,5 @@ export default class ExhibitionModel extends ThreeBase {
     };
 
 
-  
+
 }

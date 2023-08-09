@@ -8,6 +8,8 @@ import Emitter from "@/ts/util/Emitter";
 import Stats from "three/examples/jsm/libs/stats.module";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ENUM_MESH_TYPE } from "../Enum";
+import MoveMesh from "@/ts/ThreeRender/MoveMesh";
+import KeyControl from "@/ts/ThreeRender/KeyControl";
 
 
 class ThreeBase extends Emitter {
@@ -20,6 +22,8 @@ class ThreeBase extends Emitter {
     protected stats: Stats = new Stats();
     private globalTween!: TWEEN.Tween<THREE.Vector3>;
     private oldControlsEnableRotate!: boolean;
+    protected moveMesh !: MoveMesh;
+    protected keyControl !: KeyControl;
 
     constructor(option: ThreeOption) {
         super();
@@ -41,9 +45,10 @@ class ThreeBase extends Emitter {
      * @param {Number} y 鼠标y
      * @param {Camera} camera 正在使用的相机
      * @param {Scene} scene 要被判断的场景
+     * @param {Scene} filterNameList 要被过滤的数据名称
      * @returns
      */
-    static getIntersects(x: number, y: number, camera: THREE.PerspectiveCamera, scene: THREE.Scene) {
+    static getIntersects(x: number, y: number, camera: THREE.PerspectiveCamera, scene: THREE.Scene,filterNameList:string[] = []) {
         if (!camera || !scene) return { raycasterMesh: [] };
         let raycaster: THREE.Raycaster = new THREE.Raycaster();
         let mouse: THREE.Vector2 = new THREE.Vector2();
@@ -52,6 +57,7 @@ class ThreeBase extends Emitter {
         mouse.set(x, y);
         raycaster.setFromCamera(mouse, camera);
         let raycasterMesh = raycaster.intersectObjects(scene.children); // 穿过的物体
+        raycasterMesh = raycasterMesh.filter(item => !filterNameList.includes(item.object.name));
         return {
             raycasterMesh,
         };
@@ -81,10 +87,10 @@ class ThreeBase extends Emitter {
 
     // username 做切割处理
     static splitUsername(username: string = ''): UserData {
-        let splitList:string[] = username.split('-');
-        let type:ENUM_MESH_TYPE = splitList.length >= 2 ? <ENUM_MESH_TYPE>splitList[0] : ENUM_MESH_TYPE.none;
-        let meshName:string = splitList[1] && splitList[1].split('_')[0]
-        let text:string = splitList[2] && splitList[2].split('_')[0]
+        let splitList: string[] = username.split('-');
+        let type: ENUM_MESH_TYPE = splitList.length >= 2 ? <ENUM_MESH_TYPE>splitList[0] : ENUM_MESH_TYPE.none;
+        let meshName: string = splitList[1] && splitList[1].split('_')[0]
+        let text: string = splitList[2] && splitList[2].split('_')[0]
         return {
             name: username,
             type,
@@ -180,6 +186,14 @@ class ThreeBase extends Emitter {
         document.body.appendChild(this.stats.dom);
     };
 
+    protected initKeyControl(mainModel: ThreeBase) {
+        this.keyControl = new KeyControl(mainModel);
+    }
+
+    protected initMoveMesh(mainModel: ThreeBase) {
+        this.moveMesh = new MoveMesh(mainModel);
+    }
+
 
     // 页面窗口变动，重新渲染
     protected onWindowResize(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
@@ -225,11 +239,17 @@ class ThreeBase extends Emitter {
         }
     };
 
+    // 调整控制器围绕当前原点移动
+    public updateOrbitControlsFromOrigin() {
+        this.controls.maxPolarAngle = Math.PI;
+        this.controls.minDistance = 1e-4;
+        this.controls.maxDistance = 1e-4;
+    }
 
     // 移动位置动画
-    protected moveCameraTween(param: MoveCameraTweenParams) {
+    public moveCameraTween(param: MoveCameraTweenParams) {
         if (!(this.camera && this.controls)) throw new Error('相机或控制器未赋值');
-        let { movePosition, targetPosition, isInternal = true, cb = () => { }, animateTime = 3000 } = param;
+        let { movePosition, targetPosition, isInternal = true, cb = () => { }, animateTime = 3000, updateCb = () => { } } = param;
         let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
         if (this.globalTween) {
             this.globalTween.stop();
@@ -250,6 +270,7 @@ class ThreeBase extends Emitter {
                     targetPosition.z * percentage + nowPosition.z * (1 - percentage)
                 );
                 this.controls.update();
+                updateCb(nowPosition, percentage);
             })
             .onComplete(() => {
                 this.controls.enableRotate = this.oldControlsEnableRotate;
@@ -286,9 +307,6 @@ class ThreeBase extends Emitter {
             this.recurMeshParentName(mesh.parent, supportedTypes, fn);
         }
     };
-
-
-
 
     // 销毁模型
     public destroyModel<K extends keyof HTMLElementEventMap>(destroyModelParams: DestroyModelParams<K>) {
@@ -330,6 +348,23 @@ class ThreeBase extends Emitter {
     public getModelScene() {
         return this.modelScene;
     }
+
+    public getControls() {
+        return this.controls;
+    }
+
+    public getKeyControl() {
+        return this.keyControl;
+    }
+
+    public getMoveMesh() {
+        return this.moveMesh;
+    }
+    
+    public getOption() {
+        return this.option;
+    }
+   
 
 }
 

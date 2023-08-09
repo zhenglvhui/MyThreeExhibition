@@ -78,6 +78,7 @@ export default class CommonModel extends ThreeBase {
             this.modelScene.traverse((child) => {
                 ThreeBase.openShowDowAndLight(child, this.props.intensityDivided);
             });
+            
             this.renderer?.render(this.scene, this.camera);
             this.sceneUpdate();
             loadComplete && loadComplete(gltf)
