@@ -1,4 +1,4 @@
-import { MoveCameraTweenParams, ThreeOption, DestroyModelParams, UserData } from "@/ts/ThreeRender/interfaceThreeRender";
+import { MoveCameraTweenParams, ThreeOption, DestroyModelParams, UserData } from "@/ts/interface/modelRender";
 import * as THREE from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import MyDRACOLoader from "./MyDRACOLoader";
@@ -7,9 +7,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Emitter from "@/ts/util/Emitter";
 import Stats from "three/examples/jsm/libs/stats.module";
 import * as TWEEN from "@tweenjs/tween.js";
+import { ENUM_MESH_TYPE } from "../Enum";
 
 
 class ThreeBase extends Emitter {
+    protected modelScene!: THREE.Group;
     protected option: ThreeOption;
     protected scene!: THREE.Scene;
     protected camera!: THREE.PerspectiveCamera;
@@ -79,10 +81,10 @@ class ThreeBase extends Emitter {
 
     // username 做切割处理
     static splitUsername(username: string = ''): UserData {
-        let splitList = username.split('-');
-        let type = splitList.length >= 2 ? splitList[0] : undefined;
-        let meshName = splitList[1] && splitList[1].split('_')[0]
-        let text = splitList[2] && splitList[2].split('_')[0]
+        let splitList:string[] = username.split('-');
+        let type:ENUM_MESH_TYPE = splitList.length >= 2 ? <ENUM_MESH_TYPE>splitList[0] : ENUM_MESH_TYPE.none;
+        let meshName:string = splitList[1] && splitList[1].split('_')[0]
+        let text:string = splitList[2] && splitList[2].split('_')[0]
         return {
             name: username,
             type,
@@ -325,6 +327,9 @@ class ThreeBase extends Emitter {
         return this.renderer;
     }
 
+    public getModelScene() {
+        return this.modelScene;
+    }
 
 }
 

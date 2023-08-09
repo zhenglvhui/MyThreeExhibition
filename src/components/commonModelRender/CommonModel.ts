@@ -1,5 +1,5 @@
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
-import { ThreeOption } from "@/ts/ThreeRender/interfaceThreeRender";
+import { ThreeOption } from "@/ts/interface/modelRender";
 import { ItCommonRenderItemData } from "@/ts/interface/modelRender";
 import { throttle } from "@/ts/util/util";
 import * as THREE from "three"
@@ -8,7 +8,6 @@ import { Ref, ref } from "vue";
 
 export default class CommonModel extends ThreeBase {
     protected option: ThreeOption;
-    private modelScene!: THREE.Group;
     private mixer !: THREE.AnimationMixer;
     private clock: THREE.Clock = new THREE.Clock();
     private props: ItCommonRenderItemData;

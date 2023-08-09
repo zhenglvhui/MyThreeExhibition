@@ -1,11 +1,10 @@
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
-import { ThreeOption } from "@/ts/ThreeRender/interfaceThreeRender";
+import { ThreeOption } from "@/ts/interface/modelRender";
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 export default class LoadingModel extends ThreeBase {
     protected option: ThreeOption;
-    private modelScene!: THREE.Group;
     private mixer !: THREE.AnimationMixer;
     private progress: number = 0; 
     private clock: THREE.Clock = new THREE.Clock();

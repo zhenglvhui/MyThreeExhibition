@@ -1,17 +1,18 @@
 import { ENUM_MESH_TYPE, ENUM_VIEW_TYPE } from "@/ts/Enum";
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
-import { ThreeOption } from "@/ts/ThreeRender/interfaceThreeRender";
+import { ThreeOption, UserData } from "@/ts/interface/modelRender";
 import { throttle } from "@/ts/util/util";
-import * as THREE from 'three'; 
+import * as THREE from 'three';
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
-import { layerXY, pointXY } from "@/ts/interface/commonInterface"; 
-
+import { layerXY, pointXY } from "@/ts/interface/commonInterface";
+import MoveMesh from "@/ts/ThreeRender/MoveMesh";
+let instance: ExhibitionModel | null = null; 
 
 export default class ExhibitionModel extends ThreeBase {
+    // @ts-ignore
     protected option: ThreeOption;
-    private modelScene!: THREE.Group;
     private mixer !: THREE.AnimationMixer;
     private clock: THREE.Clock = new THREE.Clock();
     private currentView: ENUM_VIEW_TYPE = ENUM_VIEW_TYPE.internal; // 当前视图
@@ -22,9 +23,13 @@ export default class ExhibitionModel extends ThreeBase {
     private spriteInitScale: pointXY = { x: 8, y: 6 }; // 点精灵初始缩放大小
     private enterArrow !: THREE.Object3D<THREE.Event>; // 进入箭头
     private onDownLayer!: layerXY;
+    private MoveMesh !:MoveMesh;
     constructor(option: ThreeOption) {
         super(option);
+        if (instance) return instance;
+        instance = this;
         this.option = option;
+        this.MoveMesh = new MoveMesh(this);
     }
 
     private initLight() {
@@ -72,7 +77,7 @@ export default class ExhibitionModel extends ThreeBase {
      * @param {Mesh} mesh  被点击的目标
      */
     private showSecondPage(mesh: THREE.Object3D<THREE.Event>) {
-        let meshName: string = mesh.userData.meshName;
+        let meshName: string = (mesh.userData as UserData).meshName;
         let mainSecondPageisLoading;
         // 判断是否加载过，如果加载过了，下次就不进行loading
         if (this.mainSecondPageMeshNameList.filter((item: string) => item == meshName).length >= 1) {
@@ -91,10 +96,10 @@ export default class ExhibitionModel extends ThreeBase {
     // 点击要移动的物体 或则要展示二级页面的物体时触发 点击事件时 @param {*} supportedTypes 支持的类型
     private handerClick = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
         // 被点击的物体类型
-        let meshType: ENUM_MESH_TYPE =firstMesh.userData.type;
+        let meshType: ENUM_MESH_TYPE = (firstMesh.userData as UserData).type;
         if (!supportedTypes.includes(meshType)) return; // 如果是不支持的类型，直接return
         // 被点击后指向的物体
-        let targetMeshName = firstMesh.userData.meshNameAll;
+        let targetMeshName = (firstMesh.userData as UserData).meshNameAll;
         switch (meshType) {
             case ENUM_MESH_TYPE.move:
                 this.modelScene.traverse((item) => {
@@ -135,7 +140,7 @@ export default class ExhibitionModel extends ThreeBase {
     // 鼠标滑动事件时触发
     private handerMove = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
         // 被点击的物体类型
-        let meshType: ENUM_MESH_TYPE = firstMesh.userData.type;
+        let meshType: ENUM_MESH_TYPE = (firstMesh.userData as UserData).type;
         if (!supportedTypes.includes(meshType)) return; // 如果是不支持的类型，直接return
         switch (meshType) {
             case ENUM_MESH_TYPE.click:
@@ -184,10 +189,11 @@ export default class ExhibitionModel extends ThreeBase {
             this.modelScene = gltf.scene;
             this.modelScene.traverse((child) => {
                 ThreeBase.openShowDowAndLight(child, 1);
-                child.userData = {
+                let userData: UserData = {
                     ...child.userData,
                     ...ThreeBase.splitUsername(child.userData.name || child.name)
-                };
+                }
+                child.userData = userData;
                 // 前往
                 if (child.userData?.name == "move-computer") {
                     this.initMeshPoint = child;
@@ -199,13 +205,13 @@ export default class ExhibitionModel extends ThreeBase {
                 if (child.name == "天花板") {
                     this.meshCeiling = child;
                 }
-                if (child.userData.type == ENUM_MESH_TYPE.finger) {
+                if ((child.userData as UserData).type == ENUM_MESH_TYPE.finger) {
                     // 创建文字精灵物体
-                    let text: string = child.userData.text;
+                    let text: string = (child.userData as UserData).text;
                     let spriteMesh: THREE.Sprite = ThreeBase.createSpriteMesh(text);
                     spriteMesh.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
                     spriteMesh.position.set(child.position.x, child.position.y + 3, child.position.z);
-                    spriteMesh.name = ENUM_MESH_TYPE.text + "-" + child.userData.name.split("-")[1];
+                    spriteMesh.name = ENUM_MESH_TYPE.text + "-" + (child.userData as UserData).meshNameAll;
                     spriteMesh.visible = false;
                     this.spriteMeshList.push(spriteMesh);
                     this.modelScene.add(spriteMesh);
@@ -328,7 +334,5 @@ export default class ExhibitionModel extends ThreeBase {
     };
 
 
-    public getModelScene() {
-        return this.modelScene;
-    }
+  
 }

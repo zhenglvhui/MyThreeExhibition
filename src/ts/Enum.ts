@@ -11,6 +11,7 @@ enum ENUM_MESH_TYPE {
   text = "text", // 文本
   finger = "finger", // 手指 
   enter = "enter", // 进入
+  none = "none" // 不存在的类型
 }
 
 // 视图模式
