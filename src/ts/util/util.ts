@@ -10,7 +10,7 @@ const debounce = function <A extends any[], R>(fn: (...args: A) => R, delay: num
     timer = setTimeout(() => {
       fn.apply(this, args);
     }, delay);
-  };
+  }; 
 };
 
 // 节流

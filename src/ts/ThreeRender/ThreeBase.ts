@@ -1,4 +1,4 @@
-import { MoveCameraTweenParams, ThreeOption, DestroyModelParams } from "./interface"
+import { MoveCameraTweenParams, ThreeOption, DestroyModelParams, UserData } from "@/ts/ThreeRender/interfaceThreeRender";
 import * as THREE from "three";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import MyDRACOLoader from "./MyDRACOLoader";
@@ -7,7 +7,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Emitter from "@/ts/util/Emitter";
 import Stats from "three/examples/jsm/libs/stats.module";
 import * as TWEEN from "@tweenjs/tween.js";
-
 
 
 class ThreeBase extends Emitter {
@@ -77,6 +76,22 @@ class ThreeBase extends Emitter {
         let sprite: THREE.Sprite = new THREE.Sprite(material);
         return sprite;
     };
+
+    // username 做切割处理
+    static splitUsername(username: string = ''): UserData {
+        let splitList = username.split('-');
+        let type = splitList.length >= 2 ? splitList[0] : undefined;
+        let meshName = splitList[1] && splitList[1].split('_')[0]
+        let text = splitList[2] && splitList[2].split('_')[0]
+        return {
+            name: username,
+            type,
+            meshName,
+            meshNameAll: splitList[1],
+            text,
+            textAll: splitList[2],
+        }
+    }
 
 
 

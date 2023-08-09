@@ -258,3 +258,4 @@ onMounted(() => {
   overflow: hidden;
 }
 </style>
+@/ts/interface11/modelRender

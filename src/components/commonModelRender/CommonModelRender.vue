@@ -21,6 +21,7 @@ import carGlbUrl from "@/assets/models/car.glb";
 import { isMobile } from "@/ts/util/util";
 import { ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 import { XYZ } from "@/ts/interface/commonInterface";
+import * as CommonInterface from "@/ts/interface/commonInterface";
 import CommonModel from "./CommonModel";
 
 interface ItCommonRenderItemData {
@@ -157,3 +158,4 @@ onBeforeUnmount((): void => {
   }
 }
 </style>
+@/ts/interface11/modelRender@/ts/interface11/commonInterface

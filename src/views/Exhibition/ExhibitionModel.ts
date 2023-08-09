@@ -1,12 +1,12 @@
 import { ENUM_MESH_TYPE, ENUM_VIEW_TYPE } from "@/ts/Enum";
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
-import { ThreeOption } from "@/ts/ThreeRender/interface";
+import { ThreeOption } from "@/ts/ThreeRender/interfaceThreeRender";
 import { throttle } from "@/ts/util/util";
-import * as THREE from 'three';
+import * as THREE from 'three'; 
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
-import { layerXY, pointXY } from "@/ts/interface/commonInterface";
+import { layerXY, pointXY } from "@/ts/interface/commonInterface"; 
 
 
 export default class ExhibitionModel extends ThreeBase {
@@ -72,7 +72,7 @@ export default class ExhibitionModel extends ThreeBase {
      * @param {Mesh} mesh  被点击的目标
      */
     private showSecondPage(mesh: THREE.Object3D<THREE.Event>) {
-        let meshName: string = mesh.userData.name.split("-")[1].split("_")[0];
+        let meshName: string = mesh.userData.meshName;
         let mainSecondPageisLoading;
         // 判断是否加载过，如果加载过了，下次就不进行loading
         if (this.mainSecondPageMeshNameList.filter((item: string) => item == meshName).length >= 1) {
@@ -90,21 +90,18 @@ export default class ExhibitionModel extends ThreeBase {
 
     // 点击要移动的物体 或则要展示二级页面的物体时触发 点击事件时 @param {*} supportedTypes 支持的类型
     private handerClick = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
-        let firstMeshUserName = firstMesh.userData.name;
-        if (!firstMeshUserName) return;
         // 被点击的物体类型
-        let meshType: ENUM_MESH_TYPE = firstMeshUserName.split("-")[0];
+        let meshType: ENUM_MESH_TYPE =firstMesh.userData.type;
         if (!supportedTypes.includes(meshType)) return; // 如果是不支持的类型，直接return
         // 被点击后指向的物体
-        let targetMeshName = firstMeshUserName.split("-")[1];
+        let targetMeshName = firstMesh.userData.meshNameAll;
         switch (meshType) {
             case ENUM_MESH_TYPE.move:
                 this.modelScene.traverse((item) => {
                     let { userData } = item;
-                    if (!userData.name) return;
-                    let itemMeshType = userData.name.split("-")[0]; //  当前循环mesh类型
+                    let itemMeshType = userData.type; //  当前循环mesh类型
                     if (itemMeshType != ENUM_MESH_TYPE.click) return;
-                    let itemMeshName = userData.name.split("-")[1]; // 当前循环mesh名称
+                    let itemMeshName = userData.meshNameAll; // 当前循环mesh名称
                     // 当前循环类型名字和要循环的名字一样时前往
                     if (itemMeshName == targetMeshName) {
                         this.changeView(
@@ -137,10 +134,8 @@ export default class ExhibitionModel extends ThreeBase {
 
     // 鼠标滑动事件时触发
     private handerMove = (firstMesh: THREE.Object3D<THREE.Event>, supportedTypes: string[] = []) => {
-        let firstMeshUserName = firstMesh.userData.name;
-        if (!firstMeshUserName) return;
         // 被点击的物体类型
-        let meshType: ENUM_MESH_TYPE = firstMeshUserName.split("-")[0];
+        let meshType: ENUM_MESH_TYPE = firstMesh.userData.type;
         if (!supportedTypes.includes(meshType)) return; // 如果是不支持的类型，直接return
         switch (meshType) {
             case ENUM_MESH_TYPE.click:
@@ -189,6 +184,10 @@ export default class ExhibitionModel extends ThreeBase {
             this.modelScene = gltf.scene;
             this.modelScene.traverse((child) => {
                 ThreeBase.openShowDowAndLight(child, 1);
+                child.userData = {
+                    ...child.userData,
+                    ...ThreeBase.splitUsername(child.userData.name || child.name)
+                };
                 // 前往
                 if (child.userData?.name == "move-computer") {
                     this.initMeshPoint = child;
@@ -200,9 +199,9 @@ export default class ExhibitionModel extends ThreeBase {
                 if (child.name == "天花板") {
                     this.meshCeiling = child;
                 }
-                if (child.userData.name && child.userData.name.split("-")[0] == ENUM_MESH_TYPE.finger) {
+                if (child.userData.type == ENUM_MESH_TYPE.finger) {
                     // 创建文字精灵物体
-                    let text: string = child.userData.name.split("-")[2].split("_")[0];
+                    let text: string = child.userData.text;
                     let spriteMesh: THREE.Sprite = ThreeBase.createSpriteMesh(text);
                     spriteMesh.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
                     spriteMesh.position.set(child.position.x, child.position.y + 3, child.position.z);

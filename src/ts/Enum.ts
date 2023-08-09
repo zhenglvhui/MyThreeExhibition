@@ -9,7 +9,7 @@ enum ENUM_MESH_TYPE {
   move = "move", // 移动
   click = "click", // 看向的物体，可点击弹出的物体
   text = "text", // 文本
-  finger = "finger", // 手指
+  finger = "finger", // 手指 
   enter = "enter", // 进入
 }
 

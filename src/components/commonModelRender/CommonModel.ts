@@ -1,11 +1,10 @@
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
-import { ThreeOption } from "@/ts/ThreeRender/interface";
+import { ThreeOption } from "@/ts/ThreeRender/interfaceThreeRender";
 import { ItCommonRenderItemData } from "@/ts/interface/modelRender";
 import { throttle } from "@/ts/util/util";
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Ref, ref } from "vue";
+import { Ref, ref } from "vue"; 
 
 export default class CommonModel extends ThreeBase {
     protected option: ThreeOption;

@@ -3,12 +3,11 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-
-const dracoLoader: DRACOLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("/draco/");
+// 触发webpack 对只有 interface 和 type 导入导出不进行热更新的bug
+require("@/ts/ThreeRender/interfaceThreeRender")
+require("@/ts/interface/commonInterface")
+require("@/ts/interface/modelRender")
 
 const app = createApp(App);
-app.config.globalProperties.$dracoLoader = dracoLoader;
 
 app.use(store).use(router).mount("#app");

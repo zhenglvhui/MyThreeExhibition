@@ -1,22 +1,22 @@
 interface XYZ {
     x: number,
     y: number,
-    z: number
+    z: number  
 }
-
-interface pointXY {
-    x: number;
+ 
+interface pointXY {   
+    x: number; 
     y: number;
-}
-
+}   
+   
 interface layerXY {
     layerX: number;
     layerY: number;
 }
 
 
-export {
+export { 
     XYZ,
     pointXY,
-    layerXY
+    layerXY,
 }

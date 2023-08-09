@@ -1,7 +1,8 @@
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { XYZ } from "./commonInterface";
+ 
 
-interface ItFnArr {
+interface ItFnArr { 
     fn: string;
     fnParams: any;
 }
@@ -12,14 +13,14 @@ interface ItPlayAllSpecialAnimateFn {
 
 type ItControlsObject = {
     [propsName in keyof OrbitControls]?: any;
-};
+}; 
 
 interface ItCommonRenderItemData {
-    camraPosition?: XYZ;  // 相机的位置
+    camraPosition?: XYZ;  // 相机的位置 
     glbUrl?: string;  // 要加载glb路径
     controlsObject?: ItControlsObject;  // 控制器的限制范围
     isNeedAmbientLight?: boolean; // 是否需要环境光
-    ambientLightColor?: number; // 环境灯光颜色
+    ambientLightColor?: number; // 环境灯光颜色 
     ambientIntensity?: number; // 环境光强度
     isNeedCameraPointLight?: boolean;  // 是否需要相机上的点光源
     cameraPointLightColor?: number; // 相机上的点光源颜色
@@ -30,7 +31,7 @@ interface ItCommonRenderItemData {
     playAllSpecialAnimateFn?: ItPlayAllSpecialAnimateFn[]; // 动画执行Fn    // AnimationAction 中的方法 // [{animationName:'', fnArr: [{fn:'', fnParams:''}]}]
 }
 interface ItCommonRenderData {
-    [propName: string]: ItCommonRenderItemData;
+    [propName: string]: ItCommonRenderItemData; 
 }
-
+  
 export { ItCommonRenderData, ItCommonRenderItemData, ItPlayAllSpecialAnimateFn, ItFnArr, ItControlsObject }

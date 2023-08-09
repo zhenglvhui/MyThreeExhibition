@@ -48,7 +48,7 @@ const downloadPdf = (): void => {
   z-index: 1;
 
   .icon {
-    width: 30px;
+    width: 30px; 
     height: 30px;
     background: url("../../assets/images/icon-downloan.png") no-repeat center center / 100% 100%;
     cursor: pointer;
