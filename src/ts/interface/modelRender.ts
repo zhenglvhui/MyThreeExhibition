@@ -87,6 +87,7 @@ interface MoveMeshOptions {
     gravity: number // 重力
 }
 
+
 export {
     ItCommonRenderData, ItCommonRenderItemData, ItPlayAllSpecialAnimateFn, ItFnArr, ItControlsObject,
     MoveCameraTweenParams, DestroyModelParams, ThreeOption, UserData, MoveMeshOptions

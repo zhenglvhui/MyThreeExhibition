@@ -10,6 +10,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { ENUM_MESH_TYPE } from "../Enum";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
 import KeyControl from "@/ts/ThreeRender/KeyControl";
+import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
 
 
 class ThreeBase extends Emitter {
@@ -48,7 +49,7 @@ class ThreeBase extends Emitter {
      * @param {Scene} filterNameList 要被过滤的数据名称
      * @returns
      */
-    static getIntersects(x: number, y: number, camera: THREE.PerspectiveCamera, scene: THREE.Scene,filterNameList:string[] = []) {
+    static getIntersects(x: number, y: number, camera: THREE.PerspectiveCamera, scene: THREE.Scene, filterNameList: string[] = []) {
         if (!camera || !scene) return { raycasterMesh: [] };
         let raycaster: THREE.Raycaster = new THREE.Raycaster();
         let mouse: THREE.Vector2 = new THREE.Vector2();
@@ -246,13 +247,39 @@ class ThreeBase extends Emitter {
         this.controls.maxDistance = 1e-4;
     }
 
+    // 添加碰撞体
+    /**
+     * 
+     * @param collisionScene 碰撞体集合
+     * @returns 
+     */
+    addCollider(collisionScene: any) {
+        collisionScene.updateMatrixWorld(true);
+        // 新建碰撞体并添加到视图中
+        const staticGenerator = new StaticGeometryGenerator(collisionScene);
+        staticGenerator.attributes = ["position"];
+        const mergedGeometry = staticGenerator.generate();
+        mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false } as MeshBVHOptions);
+        return new THREE.Mesh(mergedGeometry);
+       
+    }
+
     // 移动位置动画
     public moveCameraTween(param: MoveCameraTweenParams) {
         if (!(this.camera && this.controls)) throw new Error('相机或控制器未赋值');
         let { movePosition, targetPosition, isInternal = true, cb = () => { }, animateTime = 3000, updateCb = () => { } } = param;
-        let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
+        // let toTargetPositionY = isInternal ? targetPosition.y : movePosition.y;
         if (this.globalTween) {
             this.globalTween.stop();
+        }
+
+        // 看向物体前方一点
+        if (isInternal) {
+            let firstMeshPositionCopy: THREE.Vector3 = movePosition.clone();
+            let targetMeshPositionCopy: THREE.Vector3 = targetPosition.clone();
+            firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.05);
+            targetPosition = firstMeshPositionCopy;
+            // this.controls.target.set(firstMeshPositionCopy.x, targetMeshPositionCopy.y, firstMeshPositionCopy.z);
         }
         // 解决微任务bug
         setTimeout(() => {
@@ -260,7 +287,7 @@ class ThreeBase extends Emitter {
             this.controls.enableRotate = false;
         }, 0);
         this.globalTween = new TWEEN.Tween(this.camera.position)
-            .to(new THREE.Vector3(movePosition.x, toTargetPositionY, movePosition.z), animateTime)
+            .to(new THREE.Vector3(movePosition.x, movePosition.y, movePosition.z), animateTime)
             .easing(TWEEN.Easing.Sinusoidal.InOut)
             .start()
             .onUpdate((nowPosition, percentage) => {
@@ -274,13 +301,6 @@ class ThreeBase extends Emitter {
             })
             .onComplete(() => {
                 this.controls.enableRotate = this.oldControlsEnableRotate;
-                // 看向物体前方一点
-                if (isInternal) {
-                    let firstMeshPositionCopy: THREE.Vector3 = movePosition.clone();
-                    let targetMeshPositionCopy: THREE.Vector3 = targetPosition.clone();
-                    firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.05);
-                    this.controls.target.set(firstMeshPositionCopy.x, targetMeshPositionCopy.y, firstMeshPositionCopy.z);
-                }
                 cb();
             });
     };
@@ -360,11 +380,11 @@ class ThreeBase extends Emitter {
     public getMoveMesh() {
         return this.moveMesh;
     }
-    
+
     public getOption() {
         return this.option;
     }
-   
+
 
 }
 
