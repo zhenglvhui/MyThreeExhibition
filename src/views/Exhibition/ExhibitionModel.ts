@@ -231,10 +231,7 @@ export default class ExhibitionModel extends ThreeBase {
                 }
             });
 
-
-            // this.addCollider(this.modelScene);
-            this.collider = this.addCollider(this.modelScene);
-            // this.collider.visible =false;
+            this.collider = ThreeBase.addCollider(this.modelScene);
 
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
             this.renderer.render(this.scene, this.camera);

@@ -253,7 +253,7 @@ class ThreeBase extends Emitter {
      * @param collisionScene 碰撞体集合
      * @returns 
      */
-    addCollider(collisionScene: any) {
+    static addCollider(collisionScene: THREE.Group): THREE.Mesh {
         collisionScene.updateMatrixWorld(true);
         // 新建碰撞体并添加到视图中
         const staticGenerator = new StaticGeometryGenerator(collisionScene);
@@ -261,7 +261,7 @@ class ThreeBase extends Emitter {
         const mergedGeometry = staticGenerator.generate();
         mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false } as MeshBVHOptions);
         return new THREE.Mesh(mergedGeometry);
-       
+
     }
 
     // 移动位置动画
@@ -297,7 +297,7 @@ class ThreeBase extends Emitter {
                     targetPosition.z * percentage + nowPosition.z * (1 - percentage)
                 );
                 this.controls.update();
-                updateCb(nowPosition, percentage);
+                updateCb(nowPosition, percentage, this.controls.target);
             })
             .onComplete(() => {
                 this.controls.enableRotate = this.oldControlsEnableRotate;
