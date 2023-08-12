@@ -7,9 +7,6 @@ import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
 import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
 import { layerXY, pointXY } from "@/ts/interface/commonInterface";
-import MoveMesh from "@/ts/ThreeRender/MoveMesh";
-import KeyControl from "@/ts/ThreeRender/KeyControl";
-import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
 let instance: ExhibitionModel | null = null;
 
 export default class ExhibitionModel extends ThreeBase {
@@ -24,8 +21,8 @@ export default class ExhibitionModel extends ThreeBase {
     private spriteMeshList: THREE.Object3D<THREE.Event>[] = []; // 点精灵图集合
     private spriteInitScale: pointXY = { x: 8, y: 6 }; // 点精灵初始缩放大小
     private enterArrow !: THREE.Object3D<THREE.Event>; // 进入箭头
+    private filterClickList: string[] = ['character'];
     private onDownLayer!: layerXY;
-    private internalCameraY: number = 30; // 展厅内的相机固定高度
     private collider!: THREE.Mesh; // 碰撞体
 
     constructor(option: ThreeOption) {
@@ -74,7 +71,7 @@ export default class ExhibitionModel extends ThreeBase {
     private onDocumentMouseUp(event: MouseEvent) {
         event.preventDefault();
         if (Math.abs(event.pageX - this.onDownLayer.layerX) > 2 || Math.abs(event.pageY - this.onDownLayer.layerY) > 2) return;
-        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene, ['character']);
+        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene,this.filterClickList);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
@@ -205,6 +202,18 @@ export default class ExhibitionModel extends ThreeBase {
                 }
                 child.userData = userData;
 
+                if (child.userData.type === ENUM_MESH_TYPE.click || child.userData.name === 'Chocofur_Free_Table_05') {
+                    const aabb = new THREE.Box3();
+                    aabb.setFromObject(child);
+                    let geometry: THREE.BoxGeometry;
+                    geometry = new THREE.BoxGeometry(aabb.max.x - aabb.min.x , aabb.max.y - aabb.min.y, aabb.max.z - aabb.min.z );
+                    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0 });
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(child.position.x, child.position.y, child.position.z);
+                    mesh.name = `collider${child.name}`
+                    this.filterClickList.push(mesh.name);
+                    this.modelScene.add(mesh);
+                }
 
                 // 前往
                 if (child.userData?.name == "move-computer") {
@@ -232,7 +241,6 @@ export default class ExhibitionModel extends ThreeBase {
             });
 
             this.collider = ThreeBase.addCollider(this.modelScene);
-
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
             this.renderer.render(this.scene, this.camera);
             this.camera.position.set(-556, 563, 227);
@@ -258,8 +266,8 @@ export default class ExhibitionModel extends ThreeBase {
 
     // 切换到展厅内的控制器设置
     private exhibitionInsideControls(isNeedTween = true) {
-        // this.controls.enableZoom = false; // 是否可以缩放
-        // this.controls.maxPolarAngle = Math.PI * 0.7; // 最大垂直角度
+        this.controls.enableZoom = false; // 是否可以缩放
+        this.controls.maxPolarAngle = Math.PI * 0.7; // 最大垂直角度
         this.controls.maxDistance = Infinity; // 最大缩放距离
         this.controls.minDistance = -Infinity; // 最小缩放距离
         this.controls.enableRotate = true;
@@ -352,7 +360,5 @@ export default class ExhibitionModel extends ThreeBase {
         }
         this.$emit(ON_CHANGE_VIEW, this.currentView);
     };
-
-
 
 }

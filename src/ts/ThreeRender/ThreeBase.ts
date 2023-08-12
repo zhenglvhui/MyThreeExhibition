@@ -23,6 +23,7 @@ class ThreeBase extends Emitter {
     protected stats: Stats = new Stats();
     private globalTween!: TWEEN.Tween<THREE.Vector3>;
     private oldControlsEnableRotate!: boolean;
+    protected internalCameraY: number = 30; // 展厅内的相机固定高度
     protected moveMesh !: MoveMesh;
     protected keyControl !: KeyControl;
 
@@ -260,6 +261,7 @@ class ThreeBase extends Emitter {
         staticGenerator.attributes = ["position"];
         const mergedGeometry = staticGenerator.generate();
         mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false } as MeshBVHOptions);
+        console.log({mergedGeometry})
         return new THREE.Mesh(mergedGeometry);
 
     }
@@ -277,7 +279,7 @@ class ThreeBase extends Emitter {
         if (isInternal) {
             let firstMeshPositionCopy: THREE.Vector3 = movePosition.clone();
             let targetMeshPositionCopy: THREE.Vector3 = targetPosition.clone();
-            firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.05);
+            firstMeshPositionCopy.lerp(targetMeshPositionCopy, 0.1);
             targetPosition = firstMeshPositionCopy;
             // this.controls.target.set(firstMeshPositionCopy.x, targetMeshPositionCopy.y, firstMeshPositionCopy.z);
         }
@@ -385,6 +387,10 @@ class ThreeBase extends Emitter {
         return this.option;
     }
 
+    
+    public getInternalCameraY(){
+        return this.internalCameraY;
+    }
 
 }
 
