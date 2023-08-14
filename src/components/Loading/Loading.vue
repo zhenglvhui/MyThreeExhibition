@@ -9,8 +9,9 @@
       <div class="progessBox">
         <div class="progess" :style="{ width: props.progress + '%' }"></div>
       </div>
+      <div class="tips">{{ tips }}</div>
     </div>
-    <div class="Loading" ref="container"></div>
+    <div class="loading" ref="container"></div>
   </div>
 </template>
 
@@ -37,17 +38,32 @@ let loadingModel = new LoadingModel({
   blgUrl: LoadingBlgUrl,
 });
 
+let tipsList: string[] = [
+  "PC端键盘WSAD可以控制移动",
+  "场景左下角可以切换不同视图",
+  "点击场景中的模型可以打开模型详情",
+  "场景中的白色点位可以移动到对应模型前",
+];
+let index: number = 0;
+let tips: Ref<string> = ref(tipsList[index]);
+let setInterId: number;
+
 onMounted(() => {
   setTimeout(() => {
     loadingModel.init(() => {
       emit("complete");
+      setInterId = setInterval(() => {
+        index++;
+        tips.value = tipsList[index % 4];
+      }, 4000);
     });
   }, 350);
 });
 
 onBeforeUnmount(() => {
   try {
-    loadingModel.destroyModel({  modelScene: loadingModel.getModelScene() });
+    loadingModel.destroyModel({ modelScene: loadingModel.getModelScene() });
+    clearInterval(setInterId);
   } catch (e) {
     console.log(e);
   }
@@ -59,11 +75,16 @@ onBeforeUnmount(() => {
   left: 0;
   top: 0;
 }
+
 .progessDiv {
   position: fixed;
   left: 50%;
   top: 100px;
   transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   .text {
     font-size: 30px;
@@ -75,7 +96,7 @@ onBeforeUnmount(() => {
   .progessBox {
     width: 30vh;
     height: 5vh;
-    margin-top: 20px;
+    margin-top: 10px;
     border-radius: 20px;
     border: 4px solid #fff;
     overflow: hidden;
@@ -84,6 +105,27 @@ onBeforeUnmount(() => {
       width: 100%;
       height: 100%;
       background: rgb(15, 25, 190);
+    }
+  }
+
+  .tips {
+    font-size: 25px;
+    margin-top: 10px;
+    color: #00ff00;
+    text-align: center;
+    font-weight: 600;
+  }
+}
+
+@media screen and (max-width: 750px) {
+  .progessDiv {
+    margin-top: 0.4rem;
+    .text {
+      font-size: 1.2rem;
+    }
+
+    .tips {
+      font-size: 0.8rem;
     }
   }
 }

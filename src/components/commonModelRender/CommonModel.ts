@@ -1,10 +1,13 @@
+import AnimateControls from "@/ts/ThreeRender/AnimateControls";
+import RayCasterControls from "@/ts/ThreeRender/RayCasterControls";
+import ShowdowControls from "@/ts/ThreeRender/ShowdowControls";
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
 import { ThreeOption } from "@/ts/interface/modelRender";
 import { ItCommonRenderItemData } from "@/ts/interface/modelRender";
 import { throttle } from "@/ts/util/util";
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Ref, ref } from "vue"; 
+import { Ref, ref } from "vue";  
 
 export default class CommonModel extends ThreeBase {
     protected option: ThreeOption;
@@ -59,7 +62,7 @@ export default class CommonModel extends ThreeBase {
 
     private onDocumentMouseMove(event: MouseEvent) {
         event.preventDefault();
-        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
         this.isMouseAtMesh.value = !raycasterMesh.length;
     };
 
@@ -72,11 +75,12 @@ export default class CommonModel extends ThreeBase {
         this.initCamera();
         this.initLight();
         this.loaderModel((gltf) => {
+            console.log({gltf})
             this.scene.add(gltf.scene);
             this.modelScene = gltf.scene;
-            this.mixer = ThreeBase.playAllAnimate(gltf.scene, gltf.animations, 1, this.props.playAllSpecialAnimateFn);
+            this.mixer = AnimateControls.playAllAnimate(gltf.scene, gltf.animations, 1, this.props.playAllSpecialAnimateFn);
             this.modelScene.traverse((child) => {
-                ThreeBase.openShowDowAndLight(child, this.props.intensityDivided);
+                ShowdowControls.openShowDowAndLight(child, this.props.intensityDivided);
             });
             
             this.renderer?.render(this.scene, this.camera);

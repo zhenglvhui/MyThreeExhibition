@@ -1,3 +1,4 @@
+import AnimateControls from "@/ts/ThreeRender/AnimateControls";
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
 import { ThreeOption } from "@/ts/interface/modelRender";
 import * as THREE from "three"
@@ -43,7 +44,7 @@ export default class LoadingModel extends ThreeBase {
         this.loaderModel((gltf) => {
             this.scene.add(gltf.scene);
             this.modelScene = gltf.scene;
-            this.mixer = ThreeBase.playAllAnimate(gltf.scene, gltf.animations, 1);
+            this.mixer = AnimateControls.playAllAnimate(gltf.scene, gltf.animations, 1);
             loadComplete && loadComplete(gltf)
             this.renderer?.render(this.scene, this.camera);
             this.sceneUpdate();

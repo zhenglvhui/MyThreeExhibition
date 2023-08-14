@@ -39,54 +39,7 @@ class ThreeBase extends Emitter {
     static isLight(obj: unknown): obj is THREE.Light {
         return obj instanceof THREE.Light;
     }
-
-    // 获取射线交点，用于判断是否接触到物体了
-    /**
-     *
-     * @param {Number} x 鼠标x
-     * @param {Number} y 鼠标y
-     * @param {Camera} camera 正在使用的相机
-     * @param {Scene} scene 要被判断的场景
-     * @param {Scene} filterNameList 要被过滤的数据名称
-     * @returns
-     */
-    static getIntersects(x: number, y: number, camera: THREE.PerspectiveCamera, scene: THREE.Scene, filterNameList: string[] = []) {
-        if (!camera || !scene) return { raycasterMesh: [] };
-        let raycaster: THREE.Raycaster = new THREE.Raycaster();
-        let mouse: THREE.Vector2 = new THREE.Vector2();
-        x = (x / window.innerWidth) * 2 - 1;
-        y = -(y / window.innerHeight) * 2 + 1;
-        mouse.set(x, y);
-        raycaster.setFromCamera(mouse, camera);
-        let raycasterMesh = raycaster.intersectObjects(scene.children); // 穿过的物体
-        raycasterMesh = raycasterMesh.filter(item => !filterNameList.includes(item.object.name));
-        return {
-            raycasterMesh,
-        };
-    };
-
-    // 创建精灵mesh
-    static createSpriteMesh(name: string, color: number = 0xffff00, font: string = "Bold 60px Arial", lineWidth: number = 2): THREE.Sprite {
-        //先用画布将文字画出
-        let canvas: HTMLCanvasElement = document.createElement("canvas");
-        canvas.width = 400;
-        canvas.height = 200;
-        let ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
-        if (ctx) {
-            ctx.fillStyle = "#fff";
-            ctx.font = font;
-            ctx.textAlign = "center";
-            ctx.lineWidth = lineWidth;
-            ctx.fillText(name, 200, 150);
-        }
-        let texture: THREE.Texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
-        //使用Sprite显示文字
-        let material: THREE.SpriteMaterial = new THREE.SpriteMaterial({ map: texture, color });
-        let sprite: THREE.Sprite = new THREE.Sprite(material);
-        return sprite;
-    };
-
+  
     // username 做切割处理
     static splitUsername(username: string = ''): UserData {
         let splitList: string[] = username.split('-');
@@ -102,7 +55,6 @@ class ThreeBase extends Emitter {
             textAll: splitList[2],
         }
     }
-
 
 
     protected initWebGLRenderer(): void {
@@ -154,32 +106,7 @@ class ThreeBase extends Emitter {
         );
     }
 
-    /**
-     * 执行模型中动画
-     * @param mesh  执行的动画的mesh
-     * @param animations 要执行的动画集合
-     * @param setFramePlay  从第几帧开始播放
-     * @param playAllSpecialAnimateFn  执行动画要带的参数，如要调整某个动画的时长等
-     * @returns 
-     */
-    static playAllAnimate(mesh: THREE.Group, animations: THREE.AnimationClip[], setFramePlay: number = 1, playAllSpecialAnimateFn: ItPlayAllSpecialAnimateFn[] = []): THREE.AnimationMixer {
-        let mixer: THREE.AnimationMixer = new THREE.AnimationMixer(mesh);
-        animations.forEach(function (clip): void {
-            mixer.setTime(setFramePlay);
-            let findItem = playAllSpecialAnimateFn.find((item) => item.animationName == clip.name);
-            if (findItem) {
-                let mixerStorage = mixer.clipAction(clip);
-                findItem.fnArr.map((item: ItFnArr) => {
-                    mixerStorage = (mixerStorage as any)[item.fn](item.fnParams);
-                });
-                mixerStorage.play();
-            } else {
-                mixer.clipAction(clip).play();
-            }
-        });
-        return mixer;
-    };
-
+   
     protected initStats() {
         this.stats.showPanel(0);
         this.stats.dom.style.position = "absolute";
@@ -208,38 +135,6 @@ class ThreeBase extends Emitter {
         };
     };
 
-    // 显示阴影公共处理方法  isReceiveShadow 是否投射阴影
-    static showShowDow(mesh: any, isReceiveShadow: boolean = false, isCastShadow: boolean = false) {
-        if (isReceiveShadow || isCastShadow) {
-            mesh.castShadow = true;
-            mesh.material.side = THREE.DoubleSide;
-            mesh.material.shadowSide = THREE.BackSide;
-        }
-        if (isReceiveShadow) {
-            mesh.receiveShadow = true;
-        }
-    };
-
-    // 显示灯光公共处理方法 isCastShadow 是否显示阴影 intensityDivided导出转换的功率的倍率
-    static showLight(light: any, isCastShadow: boolean = false, intensityDivided: number = 1) {
-        light.intensity = light.intensity / intensityDivided;
-        light.castShadow = isCastShadow;
-        if (isCastShadow) {
-            light.shadow.mapSize.width = 2048;
-            light.shadow.mapSize.height = 2048;
-        }
-    };
-
-
-    // 开启模型灯光阴影
-    static openShowDowAndLight(mesh: THREE.Object3D<THREE.Event>, intensityDivided?: number) {
-        if (ThreeBase.isMesh(mesh)) {
-            this.showShowDow(mesh, mesh.name.includes("rShadow"), mesh.name.includes("cShadow"));
-        }
-        if (ThreeBase.isLight(mesh)) {
-            this.showLight(mesh, mesh.name.includes("cShadow"), intensityDivided);
-        }
-    };
 
     // 调整控制器围绕当前原点移动
     public updateOrbitControlsFromOrigin() {
@@ -248,23 +143,7 @@ class ThreeBase extends Emitter {
         this.controls.maxDistance = 1e-4;
     }
 
-    // 添加碰撞体
-    /**
-     * 
-     * @param collisionScene 碰撞体集合
-     * @returns 
-     */
-    static addCollider(collisionScene: THREE.Group): THREE.Mesh {
-        collisionScene.updateMatrixWorld(true);
-        // 新建碰撞体并添加到视图中
-        const staticGenerator = new StaticGeometryGenerator(collisionScene);
-        staticGenerator.attributes = ["position"];
-        const mergedGeometry = staticGenerator.generate();
-        mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false } as MeshBVHOptions);
-        console.log({mergedGeometry})
-        return new THREE.Mesh(mergedGeometry);
 
-    }
 
     // 移动位置动画
     public moveCameraTween(param: MoveCameraTweenParams) {

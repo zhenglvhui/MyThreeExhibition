@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Exhibition from "@/views/Exhibition.vue";
-// import TestCommonModelRender from "@/views/testCommonModelRender.vue";
+import TestCommonModelRender from "@/views/testCommonModelRender.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -9,11 +9,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Exhibition,
   },
  
-  // {
-  //   path: "/test",
-  //   name: "TestCommonModelRender",
-  //   component: TestCommonModelRender,
-  // },
+  {
+    path: "/test",
+    name: "TestCommonModelRender",
+    component: TestCommonModelRender,
+  },
 ];
 
 const router = createRouter({

@@ -4,6 +4,7 @@ import ThreeBase from "@/ts/ThreeRender/ThreeBase";
 import * as THREE from 'three'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import KeyControl from "./KeyControl";
+import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
 
 interface CapsuleInfo {
     radius: number // 胶囊体半径，用于检测、
@@ -92,6 +93,23 @@ export default class MoveMesh {
         this.camera.position.sub(this.controls.target);
         this.controls.target.copy(this.character.position);
         this.camera.position.add(this.character.position);
+    }
+
+        // 添加碰撞体
+    /**
+     * 
+     * @param collisionScene 碰撞体集合
+     * @returns 
+     */
+    static addCollider(collisionScene: THREE.Group): THREE.Mesh {
+        collisionScene.updateMatrixWorld(true);
+        // 新建碰撞体并添加到视图中
+        const staticGenerator = new StaticGeometryGenerator(collisionScene);
+        staticGenerator.attributes = ["position"];
+        const mergedGeometry = staticGenerator.generate();
+        mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false } as MeshBVHOptions);
+        return new THREE.Mesh(mergedGeometry);
+
     }
 
  

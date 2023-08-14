@@ -5,8 +5,13 @@ import { throttle } from "@/ts/util/util";
 import * as THREE from 'three';
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
-import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE } from "@/ts/Constants";
+import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE, ON_SHOW_TOOTIPS } from "@/ts/Constants";
 import { layerXY, pointXY } from "@/ts/interface/commonInterface";
+import RayCasterControls from "@/ts/ThreeRender/RayCasterControls";
+import CreateMesh from "@/ts/ThreeRender/CreateMesh";
+import AnimateControls from "@/ts/ThreeRender/AnimateControls";
+import ShowdowControls from "@/ts/ThreeRender/ShowdowControls";
+import MoveMesh from "@/ts/ThreeRender/MoveMesh";
 let instance: ExhibitionModel | null = null;
 
 export default class ExhibitionModel extends ThreeBase {
@@ -24,6 +29,8 @@ export default class ExhibitionModel extends ThreeBase {
     private filterClickList: string[] = ['character'];
     private onDownLayer!: layerXY;
     private collider!: THREE.Mesh; // 碰撞体
+    private tooltipMeshList: THREE.Object3D[] = [];
+    private oldTipsName: string = '';
 
     constructor(option: ThreeOption) {
         super(option);
@@ -59,8 +66,26 @@ export default class ExhibitionModel extends ThreeBase {
             if (this.mixer) {
                 this.mixer.update(deltaTime);
             }
+            if (this.camera) {
+                this.showTootips();
+            }
         })
     };
+
+    private showTootips() {
+        let intersects = RayCasterControls.cameraInRayCaster(this.tooltipMeshList, this.camera);
+        if (intersects.length == 0) {
+            if (this.oldTipsName === 'none') return;
+            this.oldTipsName = 'none';
+            this.$emit(ON_SHOW_TOOTIPS, 'none')
+        } else {
+            ThreeBase.recurMeshParentName(intersects[0].object, [ENUM_MESH_TYPE.click], (mesh, supportedTypes) => {
+                if (this.oldTipsName === mesh.name || intersects[0].distance > 60) return;
+                this.oldTipsName = mesh.name;
+                this.$emit(ON_SHOW_TOOTIPS, (mesh.userData as UserData).meshName);
+            });
+        }
+    }
 
     private onDocumentMouseDown(event: MouseEvent) {
         event.preventDefault();
@@ -71,7 +96,7 @@ export default class ExhibitionModel extends ThreeBase {
     private onDocumentMouseUp(event: MouseEvent) {
         event.preventDefault();
         if (Math.abs(event.pageX - this.onDownLayer.layerX) > 2 || Math.abs(event.pageY - this.onDownLayer.layerY) > 2) return;
-        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene,this.filterClickList);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene, this.filterClickList);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
@@ -172,7 +197,7 @@ export default class ExhibitionModel extends ThreeBase {
 
     private onDocumentMouseMove(event: MouseEvent) {
         event.preventDefault();
-        let { raycasterMesh } = ThreeBase.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
         let firstMesh: THREE.Object3D<THREE.Event> | undefined = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
@@ -192,24 +217,27 @@ export default class ExhibitionModel extends ThreeBase {
             this.scene.add(gltf.scene);
             // console.log({ 'gltf.scene': gltf.scene })
             this.renderer.compile(this.scene, this.camera);
-            this.mixer = ThreeBase.playAllAnimate(gltf.scene, gltf.animations);
+            this.mixer = AnimateControls.playAllAnimate(gltf.scene, gltf.animations);
             this.modelScene = gltf.scene;
             this.modelScene.traverse((child) => {
-                ThreeBase.openShowDowAndLight(child, 1);
+                ShowdowControls.openShowDowAndLight(child, 1);
                 let userData: UserData = {
                     ...child.userData,
                     ...ThreeBase.splitUsername(child.userData.name || child.name)
                 }
                 child.userData = userData;
+                if (child.userData.type === ENUM_MESH_TYPE.click) {
+                    this.tooltipMeshList = [...this.tooltipMeshList, child];
+                }
 
                 if (child.userData.type === ENUM_MESH_TYPE.click || child.userData.name === 'Chocofur_Free_Table_05') {
                     const aabb = new THREE.Box3();
                     aabb.setFromObject(child);
                     let geometry: THREE.BoxGeometry;
-                    geometry = new THREE.BoxGeometry(aabb.max.x - aabb.min.x , aabb.max.y - aabb.min.y, aabb.max.z - aabb.min.z );
+                    geometry = new THREE.BoxGeometry(aabb.max.x - aabb.min.x, 30, aabb.max.z - aabb.min.z);
                     const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0 });
                     const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(child.position.x, child.position.y, child.position.z);
+                    mesh.position.set(child.position.x, 0, child.position.z);
                     mesh.name = `collider${child.name}`
                     this.filterClickList.push(mesh.name);
                     this.modelScene.add(mesh);
@@ -230,7 +258,7 @@ export default class ExhibitionModel extends ThreeBase {
                 if ((child.userData as UserData).type == ENUM_MESH_TYPE.finger) {
                     // 创建文字精灵物体
                     let text: string = (child.userData as UserData).text;
-                    let spriteMesh: THREE.Sprite = ThreeBase.createSpriteMesh(text);
+                    let spriteMesh: THREE.Sprite = CreateMesh.createSpriteMesh(text);
                     spriteMesh.scale.set(this.spriteInitScale.x, this.spriteInitScale.y, 1);
                     spriteMesh.position.set(child.position.x, child.position.y + 3, child.position.z);
                     spriteMesh.name = ENUM_MESH_TYPE.text + "-" + (child.userData as UserData).meshNameAll;
@@ -240,7 +268,7 @@ export default class ExhibitionModel extends ThreeBase {
                 }
             });
 
-            this.collider = ThreeBase.addCollider(this.modelScene);
+            this.collider = MoveMesh.addCollider(this.modelScene);
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
             this.renderer.render(this.scene, this.camera);
             this.camera.position.set(-556, 563, 227);

@@ -4,6 +4,7 @@
 -->
 <template>
   <div class="Exhibition page">
+    <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName"  />
     <div class="loadingIcon" v-if="isShowLoadingIcon">
       <img src="@/assets/images/loading.png" alt="" />
     </div>
@@ -28,7 +29,7 @@
     <!-- @click="getCamera" -->
     <div ref="container"></div>
 
-    <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
+    <Loading :progress="progress" class="loadingPage"  v-if="progress != 100" @complete="complete" />
   </div>
 </template>
 
@@ -41,7 +42,8 @@ import { isMobile } from "@/ts/util/util";
 import { ENUM_VIEW_TYPE } from "@/ts/Enum";
 import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 import ExhibitionModel from "@/views/Exhibition/ExhibitionModel";
-import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW } from "@/ts/Constants";
+import TootipsModel from "@/components/TootipsModel/TootipsModel.vue";
+import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW, ON_SHOW_TOOTIPS, MODEL_NAME_LIST } from "@/ts/Constants";
 let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
@@ -58,9 +60,9 @@ let exhibitionModel = new ExhibitionModel({
   cameraPosition: new THREE.Vector3(0, 0, 0),
   blgUrl: exhibitionGlbUrl,
 });
-
+let tootipsModelTitle = ref("");
+let tootipsModelName = ref("");
 let progress = ref(0);
-
 
 let changeView = () => {
   exhibitionModel.changeView();
@@ -72,12 +74,13 @@ let hideSecondPage = () => {
   exhibitionModel.getMoveMesh().canMoveEnbled = true;
 };
 
-
 // 点击视图,打开二级页面
 type changeViewParams = {
-  isShowMainSecondPage:boolean,mainSecondPageMeshName:string,mainSecondPageisLoading:boolean
-}
-exhibitionModel.$on(ON_SHOW_SECOND_PAGE, (paramsArr:changeViewParams[]) => {
+  isShowMainSecondPage: boolean;
+  mainSecondPageMeshName: string;
+  mainSecondPageisLoading: boolean;
+};
+exhibitionModel.$on(ON_SHOW_SECOND_PAGE, (paramsArr: changeViewParams[]) => {
   let params = paramsArr[0];
   isShowMainSecondPage.value = params.isShowMainSecondPage;
   mainSecondPageMeshName.value = params.mainSecondPageMeshName;
@@ -85,8 +88,14 @@ exhibitionModel.$on(ON_SHOW_SECOND_PAGE, (paramsArr:changeViewParams[]) => {
 });
 
 // 右下角切换视图
-exhibitionModel.$on(ON_CHANGE_VIEW, (params:ENUM_VIEW_TYPE[]) => {
+exhibitionModel.$on(ON_CHANGE_VIEW, (params: ENUM_VIEW_TYPE[]) => {
   currentView.value = params[0];
+});
+
+// 展示说明文案
+exhibitionModel.$on(ON_SHOW_TOOTIPS, (params: string[]) => {
+  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || "PC端键盘WSAD可以控制移动";
+  tootipsModelName.value = params[0];
 });
 
 let complete = () => {

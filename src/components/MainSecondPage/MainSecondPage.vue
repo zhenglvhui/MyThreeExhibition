@@ -11,7 +11,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import CommonModelRender from "@/components/commonModelRender/CommonModelRender.vue";
+import CommonModelRender from "@/components/CommonModelRender/CommonModelRender.vue"; 
 import { reactive, defineEmits, onMounted, defineProps, ref, defineAsyncComponent } from "vue";
 import carGlbUrl from "@/assets/models/car.glb";
 import moneyGlbUrl from "@/assets/models/money.glb";
@@ -258,4 +258,3 @@ onMounted(() => {
   overflow: hidden;
 }
 </style>
-@/ts/interface11/modelRender

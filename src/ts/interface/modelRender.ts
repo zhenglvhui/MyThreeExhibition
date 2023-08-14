@@ -81,7 +81,7 @@ interface UserData {
 
 interface MoveMeshOptions {
     resetPosition: THREE.Vector3,  // 重生点
-    resetY: number,  // 掉落高度
+    resetY: number,  // 掉落高度 
     speed: number,// 速度
     jumpHeight: number, // 跳起高度
     gravity: number // 重力

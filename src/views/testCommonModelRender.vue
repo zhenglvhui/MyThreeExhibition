@@ -4,7 +4,7 @@
   <!-- </div> -->
 </template>
 <script setup lang="ts">
-import CommonModelRender from "@/components/commonModelRender/CommonModelRender.vue";
+import CommonModelRender from "@/components/CommonModelRender/CommonModelRender.vue";
 import { reactive } from "vue";
 import carGlbUrl from "@/assets/models/car.glb";
 import moneyGlbUrl from "@/assets/models/money.glb";
@@ -12,30 +12,52 @@ import firmamentGlbUrl from "@/assets/models/firmament.glb";
 import earthGlbUrl from "@/assets/models/earth.glb";
 import treeGlbUrl from "@/assets/models/tree.glb";
 import rubikCubeGlbUrl from "@/assets/models/rubikCube.glb";
-import mypikachuGlbUrl from "@/assets/models/mypikachu.glb";
+import mypikachuGlbUrl from "@/assets/models/pikachu.glb";
 import robotGlbUrl from "@/assets/models/robot.glb";
 import * as THREE from "three";
 
-// 小车
 let renderData = reactive({
   camraPosition: {
-    x: 0.83,
-    y: 4.86,
-    z: 3.3,
+    x: 0,
+    y: 0,
+    z: 0,
   },
-  glbUrl: carGlbUrl,
   controlsObject: {
-    target: new THREE.Vector3(-5.67, 0, 0.57),
-    maxDistance: 10, // 最大缩放距离
-    minDistance: 8, // 最小缩放距离
-    enablePan: false, // 不允许平移
-    maxPolarAngle: Math.PI * 0.45, // 最大垂直角度
+    target: new THREE.Vector3(0, 0.1, 0),
+    maxDistance: 8, // 最大缩放距离
+    minDistance: -8, // 最小缩放距离
+    // enablePan: false, // 不允许平移
+    // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
   },
-  // isNeedAmbientLight: true,
-  // isNeedCameraPointLight: true,
-  // cameraPointLightIntensity: 2,
-  intensityDivided: 1,
+  glbUrl: mypikachuGlbUrl,
+  isNeedAmbientLight: true,
+  isNeedCameraPointLight: true,
+  cameraPointLightIntensity: 0.3,
+  // intensityDivided:3,
+  isSelfRotation: false,
+  renderOutputColorSpace: THREE.SRGBColorSpace,
 });
+
+// 小车
+// let renderData = reactive({
+//   camraPosition: {
+//     x: 0.83,
+//     y: 4.86,
+//     z: 3.3,
+//   },
+//   glbUrl: carGlbUrl,
+//   controlsObject: {
+//     target: new THREE.Vector3(-5.67, 0, 0.57),
+//     maxDistance: 10, // 最大缩放距离
+//     minDistance: 8, // 最小缩放距离
+//     enablePan: false, // 不允许平移
+//     maxPolarAngle: Math.PI * 0.45, // 最大垂直角度
+//   },
+//   // isNeedAmbientLight: true,
+//   // isNeedCameraPointLight: true,
+//   // cameraPointLightIntensity: 2,
+//   intensityDivided: 1,
+// });
 
 // 金币
 // let renderData = reactive({
