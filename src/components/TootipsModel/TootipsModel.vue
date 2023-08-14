@@ -1,7 +1,7 @@
 <template>
   <div class="tootipsModelPage">
     <div class="title">{{ title }}</div>
-    <div class="detail" v-if="modelName !== 'none'">点击前方模型可以查看模型详情</div>
+    <div class="detail" v-if="modelName && modelName !== 'none'">点击前方模型可以查看模型详情</div>
   </div>
 </template>
 <script lang="ts" setup>

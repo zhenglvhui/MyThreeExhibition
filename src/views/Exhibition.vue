@@ -4,7 +4,8 @@
 -->
 <template>
   <div class="Exhibition page">
-    <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName"  />
+    <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
+    <DragMove />
     <div class="loadingIcon" v-if="isShowLoadingIcon">
       <img src="@/assets/images/loading.png" alt="" />
     </div>
@@ -29,7 +30,7 @@
     <!-- @click="getCamera" -->
     <div ref="container"></div>
 
-    <Loading :progress="progress" class="loadingPage"  v-if="progress != 100" @complete="complete" />
+    <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
   </div>
 </template>
 
@@ -43,6 +44,7 @@ import { ENUM_VIEW_TYPE } from "@/ts/Enum";
 import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 import ExhibitionModel from "@/views/Exhibition/ExhibitionModel";
 import TootipsModel from "@/components/TootipsModel/TootipsModel.vue";
+import DragMove from "@/components/DragMove/DragMove.vue";
 import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW, ON_SHOW_TOOTIPS, MODEL_NAME_LIST } from "@/ts/Constants";
 let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
