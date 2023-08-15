@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import { XYZ } from '../interface/commonInterface';
+import ThreeBase from './ThreeBase';
 
 interface CreatAABBFromMeshParams {
-    addMesh: THREE.Object3D  , // 要添加包围盒长宽的元素
+    addMesh: THREE.Object3D, // 要添加包围盒长宽的元素
     boxGeometry?: {
         width?: number,
         height?: number,
@@ -44,13 +45,14 @@ export default class CreateMesh {
         let height = params.boxGeometry?.height ? params.boxGeometry.height : aabb.max.y - aabb.min.y;
         let depth = params.boxGeometry?.depth ? params.boxGeometry.depth : aabb.max.z - aabb.min.z;
         geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0});
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 1 });
         const mesh = new THREE.Mesh(geometry, material);
         let x = params.position?.x ? params.position.x : params.addMesh.position.x;
         let y = params.position?.y ? params.position.y : params.addMesh.position.y;
         let z = params.position?.z ? params.position.z : params.addMesh.position.z;
         mesh.position.set(x, y, z);
-        mesh.name = params.name
+        mesh.name = params.name;
+        mesh.visible = false;
         return mesh;
     }
 

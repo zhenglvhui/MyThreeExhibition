@@ -14,6 +14,12 @@ import ShowdowControls from "@/ts/ThreeRender/ShowdowControls";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
 let instance: ExhibitionModel | null = null;
 
+interface RaycasterMeshList {
+    meshAABB: THREE.Object3D,
+    name: string,
+    assMesh: THREE.Object3D
+}
+
 export default class ExhibitionModel extends ThreeBase {
     // @ts-ignore
     protected option: ThreeOption;
@@ -26,11 +32,12 @@ export default class ExhibitionModel extends ThreeBase {
     private spriteMeshList: THREE.Object3D<THREE.Event>[] = []; // 点精灵图集合
     private spriteInitScale: pointXY = { x: 8, y: 6 }; // 点精灵初始缩放大小
     private enterArrow !: THREE.Object3D<THREE.Event>; // 进入箭头
-    private filterClickList: string[] = ['character'];
+    private filterClickList: string[] = ['character']; // 要过滤射线经过的物体
     private onDownLayer!: layerXY;
     private collider!: THREE.Mesh; // 碰撞体
     private tooltipMeshList: THREE.Object3D[] = [];
     private oldTipsName: string = '';
+    private raycasterMeshList: RaycasterMeshList[] = []; // 射线要经过的物体
 
     constructor(option: ThreeOption) {
         super(option);
@@ -98,10 +105,11 @@ export default class ExhibitionModel extends ThreeBase {
     private onDocumentMouseUp(event: MouseEvent) {
         event.preventDefault();
         if (Math.abs(event.pageX - this.onDownLayer.layerX) > 2 || Math.abs(event.pageY - this.onDownLayer.layerY) > 2) return;
-        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene.children, this.filterClickList);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.raycasterMeshList.map(item => item.meshAABB), this.filterClickList);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
+        let assMesh:THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
+        ThreeBase.recurMeshParentName(assMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
     };
 
     //展示页面
@@ -199,10 +207,11 @@ export default class ExhibitionModel extends ThreeBase {
 
     private onDocumentMouseMove(event: MouseEvent) {
         event.preventDefault();
-        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene.children);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.raycasterMeshList.map(item => item.meshAABB));
         let firstMesh: THREE.Object3D<THREE.Event> | undefined = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
+        let assMesh:THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
+        ThreeBase.recurMeshParentName(assMesh, [ENUM_MESH_TYPE.click], this.handerMove);
     };
 
     private throttleOnDocumentMouseDown = throttle(this.onDocumentMouseDown.bind(this), 100);
@@ -232,6 +241,16 @@ export default class ExhibitionModel extends ThreeBase {
                     this.tooltipMeshList = [...this.tooltipMeshList, child];
                 }
 
+                let typeList = [ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.text, ENUM_MESH_TYPE.enter];
+                if (typeList.includes(child.userData.type)) {
+                    let meshAABB = CreateMesh.creatAABBFromMesh({ addMesh: child, name: `collider-${child.name}_002`, });
+                    this.raycasterMeshList.push({
+                        meshAABB,
+                        name: meshAABB.name,
+                        assMesh: child
+                    })
+                    this.modelScene.add(meshAABB);
+                }
                 if (child.userData.type === ENUM_MESH_TYPE.click || child.userData.name === 'Chocofur_Free_Table_05') {
                     let mesh = CreateMesh.creatAABBFromMesh({
                         addMesh: child,
