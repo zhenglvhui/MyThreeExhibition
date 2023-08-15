@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import KeyControl from "./KeyControl";
 import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
+import { ENUM_MOUSE_KEY } from "../Enum";
 
 interface CapsuleInfo {
     radius: number // 胶囊体半径，用于检测、
@@ -27,7 +28,7 @@ export default class MoveMesh {
     public canMoveEnbled: boolean = true;// 是否启用，用于外部调用  
     private internalCameraY;
     private capsuleInfo: CapsuleInfo = { // 胶囊体数据,碰撞时使用
-        radius: 10,
+        radius: 8,
         segment: new THREE.Line3(
             new THREE.Vector3(0, 5, 0),
             new THREE.Vector3(0, -23, 0)
@@ -42,12 +43,12 @@ export default class MoveMesh {
     constructor(mainModel: ThreeBase, options: MoveMeshOptions = {
         resetPosition: new THREE.Vector3(0, 5, 0), // 重生点
         resetY: -25, // 掉落高度
-        speed: 30, // 速度
+        speed: 25, // 速度
         jumpHeight: 20, // 跳起高度
         gravity: -50 // 重力
     }) {
         this.mainModel = mainModel;
-       
+
         this.cameraRaycaster.far = 5;
         this.internalCameraY = mainModel.getInternalCameraY();
         this.velocity = new THREE.Vector3(0, mainModel.getInternalCameraY(), 0);
@@ -71,7 +72,7 @@ export default class MoveMesh {
         this.mainModel.getScene().add(this.character);
     }
 
-  
+
 
     // 点击时移动位置
     public moveCharacter(params: MoveCameraTweenParams) {
@@ -95,7 +96,7 @@ export default class MoveMesh {
         this.camera.position.add(this.character.position);
     }
 
-        // 添加碰撞体
+    // 添加碰撞体
     /**
      * 
      * @param collisionScene 碰撞体集合
@@ -112,7 +113,7 @@ export default class MoveMesh {
 
     }
 
- 
+
     private isFirst = true;
     // 检查是否碰撞
     private checkCollision(deltaTime: number, collider: THREE.Mesh) {
@@ -178,31 +179,33 @@ export default class MoveMesh {
         if (!this.isCanMove || !this.canMoveEnbled) return;
         // 控制移动
         const angle = this.controls.getAzimuthalAngle(); //获得当前的水平旋转，单位为弧度。
-        const { ketStatus } = this.keyControl;
-        const enter = ketStatus["KeyW"] || ketStatus["KeyS"] || ketStatus["KeyA"] || ketStatus["KeyD"]
+        const ketStatus = this.keyControl.getKeyStatus();
         // this.velocity.y += this.playerIsOnGround ? 0 : deltaTime * this.options.gravity; // 不在地面的话，每次更新的时候下落
         // this.character.position.addScaledVector(this.velocity, deltaTime); // 控制下落
         // if (!this.playerIsOnGround) {
         //     this.velocity.y += deltaTime * this.options.gravity;
         //     this.character.position.addScaledVector(this.velocity, deltaTime); // 控制下落
         // }
-        if (ketStatus["KeyW"]) {
+        if (ketStatus[ENUM_MOUSE_KEY.keyW]) {
             this.tempVector.set(0, 0, -1).applyAxisAngle(this.upVector, angle); // 新的向量位置
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.updateCamera();
         }
 
-        if (ketStatus["KeyS"]) {
+        if (ketStatus[ENUM_MOUSE_KEY.keyS]) {
             this.tempVector.set(0, 0, 1).applyAxisAngle(this.upVector, angle);
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.updateCamera();
         }
 
-        if (ketStatus["KeyA"]) {
+        if (ketStatus[ENUM_MOUSE_KEY.keyA]) {
             this.tempVector.set(-1, 0, 0).applyAxisAngle(this.upVector, angle);
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.updateCamera();
         }
 
-        if (ketStatus["KeyD"]) {
+        if (ketStatus[ENUM_MOUSE_KEY.keyD]) {
             this.tempVector.set(1, 0, 0).applyAxisAngle(this.upVector, angle);
-        }
-
-        if (enter) {
             this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
             this.updateCamera();
         }
@@ -223,5 +226,9 @@ export default class MoveMesh {
         this.keyMoveCharacter(deltaTime)
         this.checkCollision(deltaTime, collider);
         // this.mainModel.updateOrbitControlsFromOrigin();
+    }
+
+    public getIsCanMove(){
+        return this.isCanMove;
     }
 }

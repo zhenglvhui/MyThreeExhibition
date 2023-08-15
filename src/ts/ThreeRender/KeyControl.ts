@@ -1,57 +1,60 @@
-import {ON_CHARACTER_JUMP} from "@/ts/Constants";
+import { ON_CHARACTER_JUMP } from "@/ts/Constants";
 import ThreeBase from "./ThreeBase";
+import { ENUM_MOUSE_KEY } from "@/ts/Enum";
+import { KeyStatus } from "@/ts/interface/commonInterface";
 
-type Keys = "KeyW" | "KeyS" | "KeyA" | "KeyD" | "KeyV" | "Space";
-
-type KeySets = Keys[]
-
-type KeyStatus = {
-	[key in Keys]: boolean; 
-};
 
 export default class KeyControl {
-	ketStatus: KeyStatus = {
-		"KeyW": false,
-		"KeyS": false,
-		"KeyA": false,
-		"KeyD": false,
-		"KeyV": false,
-		"Space": false
+	private keyStatus: KeyStatus = {
+		[ENUM_MOUSE_KEY.keyW]: false,
+		[ENUM_MOUSE_KEY.keyS]: false,
+		[ENUM_MOUSE_KEY.keyA]: false,
+		[ENUM_MOUSE_KEY.keyD]: false,
+		[ENUM_MOUSE_KEY.keyV]: false,
+		[ENUM_MOUSE_KEY.space]: false
 	};
-	private key_sets: KeySets = ["KeyW", "KeyS", "KeyA", "KeyD", "KeyV", "Space"];
+	private keySets: ENUM_MOUSE_KEY[] = [ENUM_MOUSE_KEY.keyW, ENUM_MOUSE_KEY.keyS, ENUM_MOUSE_KEY.keyA, ENUM_MOUSE_KEY.keyD, ENUM_MOUSE_KEY.keyV, ENUM_MOUSE_KEY.space];
 	private handleKeyDown: OmitThisParameter<(event: KeyboardEvent) => void>;
 	private handleKeyUp: OmitThisParameter<(event: KeyboardEvent) => void>;
-	private mainModel:ThreeBase
+	private mainModel: ThreeBase
 
 	constructor(mainModel: ThreeBase) {
 		this.mainModel = mainModel;
 		this.handleKeyDown = this.onKeyDown.bind(this);
 		this.handleKeyUp = this.onKeyUp.bind(this);
-		this._bindEvent();
+		this.bindEvent();
 	}
 
-	private _bindEvent() {
+	private bindEvent() {
 		document.addEventListener("keydown", this.handleKeyDown);
 		document.addEventListener("keyup", this.handleKeyUp);
 	}
 
-	onKeyDown(event: KeyboardEvent) {
+	private onKeyDown(event: KeyboardEvent) {
 		if (this.isAllowKey(event.code)) {
-			this.ketStatus[event.code] = true;
-			if (event.code === "Space") {
+			this.keyStatus[event.code as ENUM_MOUSE_KEY] = true;
+			if (event.code as ENUM_MOUSE_KEY === ENUM_MOUSE_KEY.space) {
 				this.mainModel.$emit(ON_CHARACTER_JUMP);
 			}
 		}
 	}
 
-	onKeyUp(event: KeyboardEvent) {
+	private onKeyUp(event: KeyboardEvent) {
 		if (this.isAllowKey(event.code)) {
-			this.ketStatus[event.code] = false;
+			this.keyStatus[event.code as ENUM_MOUSE_KEY] = false;
 		}
 	}
 
 	// 判断是否为允许的键盘key
-	isAllowKey(key: string): key is Keys {
-		return this.key_sets.includes(key as Keys);
+	private isAllowKey(key: string): key is ENUM_MOUSE_KEY {
+		return this.keySets.includes(key as ENUM_MOUSE_KEY);
+	}
+
+	public getKeyStatus():KeyStatus{
+		return this.keyStatus;
+	}
+
+	public setKeyStatus(keyStatus:KeyStatus){
+		this.keyStatus = keyStatus;
 	}
 }

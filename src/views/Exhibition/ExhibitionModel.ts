@@ -62,7 +62,9 @@ export default class ExhibitionModel extends ThreeBase {
                 this.moveMesh.update(deltaTime, this.collider);
             }
             this.renderer?.render(this.scene, this.camera);
-            TWEEN.update();
+            if (!this.moveMesh.getIsCanMove()) {
+                TWEEN.update();
+            }
             if (this.mixer) {
                 this.mixer.update(deltaTime);
             }

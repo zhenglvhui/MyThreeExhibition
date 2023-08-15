@@ -2,7 +2,6 @@ export const ON_SHOW_SECOND_PAGE:string = "on-show-second-page"; // 打开二级
 export const ON_CHANGE_VIEW:string = "on-change-view"; // 切换视图
 export const ON_CHARACTER_JUMP:string = "on-character-jump"; // 跳起来
 export const ON_SHOW_TOOTIPS:string = "on-show-tootips"; // 展示说明
-
 interface modelNameList {
     [key:string]:string
 }

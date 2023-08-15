@@ -41,6 +41,7 @@ let loadingModel = new LoadingModel({
 let tipsList: string[] = [
   "PC端键盘WSAD可以控制移动",
   "场景左下角可以切换不同视图",
+  "移动端下方按钮可以控制移动",
   "点击场景中的模型可以打开模型详情",
   "场景中的白色点位可以移动到对应模型前",
 ];

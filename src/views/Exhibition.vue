@@ -5,7 +5,7 @@
 <template>
   <div class="Exhibition page">
     <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
-    <DragMove />
+    <DragMove v-if="isMobile() && !isShowLoadingIcon" @status-keys="changeStatusKey" />
     <div class="loadingIcon" v-if="isShowLoadingIcon">
       <img src="@/assets/images/loading.png" alt="" />
     </div>
@@ -40,12 +40,13 @@ import * as THREE from "three";
 import Loading from "@/components/Loading/Loading.vue";
 import exhibitionGlbUrl from "@/assets/models/exhibition.glb";
 import { isMobile } from "@/ts/util/util";
-import { ENUM_VIEW_TYPE } from "@/ts/Enum";
+import { ENUM_MOUSE_KEY, ENUM_VIEW_TYPE } from "@/ts/Enum";
 import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 import ExhibitionModel from "@/views/Exhibition/ExhibitionModel";
 import TootipsModel from "@/components/TootipsModel/TootipsModel.vue";
 import DragMove from "@/components/DragMove/DragMove.vue";
 import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW, ON_SHOW_TOOTIPS, MODEL_NAME_LIST } from "@/ts/Constants";
+import { KeyStatus } from "@/ts/interface/commonInterface";
 let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
@@ -68,6 +69,25 @@ let progress = ref(0);
 
 let changeView = () => {
   exhibitionModel.changeView();
+};
+
+let changeStatusKey = (keys: ENUM_MOUSE_KEY[]) => {
+  let KeyControl = exhibitionModel.getKeyControl();
+  let keyStatus = KeyControl.getKeyStatus();
+  let newStatus: KeyStatus  = {
+    [ENUM_MOUSE_KEY.keyW]: false,
+		[ENUM_MOUSE_KEY.keyS]: false,
+		[ENUM_MOUSE_KEY.keyA]: false,
+		[ENUM_MOUSE_KEY.keyD]: false,
+		[ENUM_MOUSE_KEY.keyV]: false,
+		[ENUM_MOUSE_KEY.space]: false
+  };
+  for (let index = 0; index < Object.keys(keyStatus).length; index++) {
+    let key:ENUM_MOUSE_KEY = Object.keys(keyStatus)[index] as ENUM_MOUSE_KEY;
+    newStatus[key] = keys.includes(key);
+  }
+  KeyControl.setKeyStatus(newStatus);
+ 
 };
 
 //隐藏页面
@@ -96,7 +116,7 @@ exhibitionModel.$on(ON_CHANGE_VIEW, (params: ENUM_VIEW_TYPE[]) => {
 
 // 展示说明文案
 exhibitionModel.$on(ON_SHOW_TOOTIPS, (params: string[]) => {
-  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || "PC端键盘WSAD可以控制移动";
+  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || (isMobile() ? '移动端下方按钮可以控制移动': "PC端键盘WSAD可以控制移动");
   tootipsModelName.value = params[0];
 });
 

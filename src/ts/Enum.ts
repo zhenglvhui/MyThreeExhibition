@@ -21,5 +21,15 @@ enum ENUM_VIEW_TYPE {
   vertical = "俯视图", //府视图
 }
 
+// 按键快捷键
+enum ENUM_MOUSE_KEY {
+  keyW = "KeyW",
+  keyS = "KeyS",
+  keyA = "KeyA",
+  keyD = "KeyD",
+  keyV = "KeyV", 
+  space = "Space"
+}
 
-export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE};
+
+export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE,ENUM_MOUSE_KEY };
