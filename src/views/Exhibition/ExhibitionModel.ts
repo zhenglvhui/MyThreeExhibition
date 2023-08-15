@@ -98,7 +98,7 @@ export default class ExhibitionModel extends ThreeBase {
     private onDocumentMouseUp(event: MouseEvent) {
         event.preventDefault();
         if (Math.abs(event.pageX - this.onDownLayer.layerX) > 2 || Math.abs(event.pageY - this.onDownLayer.layerY) > 2) return;
-        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene, this.filterClickList);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene.children, this.filterClickList);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
@@ -199,7 +199,7 @@ export default class ExhibitionModel extends ThreeBase {
 
     private onDocumentMouseMove(event: MouseEvent) {
         event.preventDefault();
-        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene.children);
         let firstMesh: THREE.Object3D<THREE.Event> | undefined = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
         ThreeBase.recurMeshParentName(firstMesh, [ENUM_MESH_TYPE.click], this.handerMove);
@@ -233,14 +233,16 @@ export default class ExhibitionModel extends ThreeBase {
                 }
 
                 if (child.userData.type === ENUM_MESH_TYPE.click || child.userData.name === 'Chocofur_Free_Table_05') {
-                    const aabb = new THREE.Box3();
-                    aabb.setFromObject(child);
-                    let geometry: THREE.BoxGeometry;
-                    geometry = new THREE.BoxGeometry(aabb.max.x - aabb.min.x, 30, aabb.max.z - aabb.min.z);
-                    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0 });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(child.position.x, 0, child.position.z);
-                    mesh.name = `collider${child.name}`
+                    let mesh = CreateMesh.creatAABBFromMesh({
+                        addMesh: child,
+                        boxGeometry: {
+                            height: 30,
+                        },
+                        name: `collider-${child.name}`,
+                        position: {
+                            y: 0,
+                        }
+                    })
                     this.filterClickList.push(mesh.name);
                     this.modelScene.add(mesh);
                 }

@@ -1,6 +1,18 @@
-import * as THREE from 'three' 
+import * as THREE from 'three'
+import { XYZ } from '../interface/commonInterface';
+
+interface CreatAABBFromMeshParams {
+    addMesh: THREE.Object3D  , // 要添加包围盒长宽的元素
+    boxGeometry?: {
+        width?: number,
+        height?: number,
+        depth?: number,
+    },
+    name: string,
+    position?: Partial<XYZ>
+}
 export default class CreateMesh {
-    constructor(){ } 
+    constructor() { }
     // 创建精灵mesh 
     static createSpriteMesh(name: string, color: number = 0xffff00, font: string = "Bold 60px Arial", lineWidth: number = 2): THREE.Sprite {
         //先用画布将文字画出
@@ -22,5 +34,24 @@ export default class CreateMesh {
         let sprite: THREE.Sprite = new THREE.Sprite(material);
         return sprite;
     };
+
+    // 创建包围盒
+    static creatAABBFromMesh(params: CreatAABBFromMeshParams): THREE.Mesh {
+        const aabb = new THREE.Box3();
+        aabb.setFromObject(params.addMesh);
+        let geometry: THREE.BoxGeometry;
+        let width = params.boxGeometry?.width ? params.boxGeometry.width : aabb.max.x - aabb.min.x;
+        let height = params.boxGeometry?.height ? params.boxGeometry.height : aabb.max.y - aabb.min.y;
+        let depth = params.boxGeometry?.depth ? params.boxGeometry.depth : aabb.max.z - aabb.min.z;
+        geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0});
+        const mesh = new THREE.Mesh(geometry, material);
+        let x = params.position?.x ? params.position.x : params.addMesh.position.x;
+        let y = params.position?.y ? params.position.y : params.addMesh.position.y;
+        let z = params.position?.z ? params.position.z : params.addMesh.position.z;
+        mesh.position.set(x, y, z);
+        mesh.name = params.name
+        return mesh;
+    }
 
 }

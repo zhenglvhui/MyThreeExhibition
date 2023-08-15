@@ -1,11 +1,13 @@
 <template>
   <div class="page">
-    <!-- <CommonModelRender v-bind="renderData" /> -->
-    <DragMove />
+    <CommonModelRender v-bind="renderData" />
+    <!-- <DragMove /> -->
+    <!-- <LoadingModel/> -->
   </div>
 </template>
 <script setup lang="ts">
 import CommonModelRender from "@/components/CommonModelRender/CommonModelRender.vue";
+import LoadingModel from "@/components/Loading/Loading.vue";
 import DragMove from "@/components/DragMove/DragMove.vue";
 import { reactive } from "vue";
 import carGlbUrl from "@/assets/models/car.glb";
@@ -15,30 +17,31 @@ import earthGlbUrl from "@/assets/models/earth.glb";
 import treeGlbUrl from "@/assets/models/tree.glb";
 import rubikCubeGlbUrl from "@/assets/models/rubikCube.glb";
 import mypikachuGlbUrl from "@/assets/models/pikachu.glb";
+import temp from "@/assets/models/newCar.glb";
 import robotGlbUrl from "@/assets/models/robot.glb";
 import * as THREE from "three";
 
-// let renderData = reactive({
-//   camraPosition: {
-//     x: 0,
-//     y: 0,
-//     z: 0,
-//   },
-//   controlsObject: {
-//     target: new THREE.Vector3(0, 0.1, 0),
-//     maxDistance: 8, // 最大缩放距离
-//     minDistance: -8, // 最小缩放距离
-//     // enablePan: false, // 不允许平移
-//     // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
-//   },
-//   glbUrl: mypikachuGlbUrl,
-//   isNeedAmbientLight: true,
-//   isNeedCameraPointLight: true,
-//   cameraPointLightIntensity: 0.3,
-//   // intensityDivided:3,
-//   isSelfRotation: false,
-//   renderOutputColorSpace: THREE.SRGBColorSpace,
-// });
+let renderData = reactive({
+  camraPosition: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+  controlsObject: {
+    target: new THREE.Vector3(0, 0.1, 0),
+    maxDistance: 8, // 最大缩放距离
+    minDistance: -8, // 最小缩放距离
+    // enablePan: false, // 不允许平移
+    // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
+  },
+  glbUrl: temp,
+  isNeedAmbientLight: true,
+  isNeedCameraPointLight: true,
+  cameraPointLightIntensity: 0.3,
+  intensityDivided:3,
+  isSelfRotation: true,
+  renderOutputColorSpace: THREE.SRGBColorSpace,
+});
 
 // 小车
 // let renderData = reactive({

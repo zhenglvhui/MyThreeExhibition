@@ -1,4 +1,5 @@
 import AnimateControls from "@/ts/ThreeRender/AnimateControls";
+import CreateMesh from "@/ts/ThreeRender/CreateMesh";
 import RayCasterControls from "@/ts/ThreeRender/RayCasterControls";
 import ShowdowControls from "@/ts/ThreeRender/ShowdowControls";
 import ThreeBase from "@/ts/ThreeRender/ThreeBase";
@@ -7,12 +8,13 @@ import { ItCommonRenderItemData } from "@/ts/interface/modelRender";
 import { throttle } from "@/ts/util/util";
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Ref, ref } from "vue";  
+import { Ref, ref } from "vue";
 
 export default class CommonModel extends ThreeBase {
     protected option: ThreeOption;
     private mixer !: THREE.AnimationMixer;
     private clock: THREE.Clock = new THREE.Clock();
+    private meshAABB!: THREE.Mesh;
     private props: ItCommonRenderItemData;
     private isMouseAtMesh: Ref<Boolean> = ref(false);
     constructor(option: ThreeOption, props: ItCommonRenderItemData) {
@@ -62,7 +64,7 @@ export default class CommonModel extends ThreeBase {
 
     private onDocumentMouseMove(event: MouseEvent) {
         event.preventDefault();
-        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.scene);
+        let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, [this.meshAABB]);
         this.isMouseAtMesh.value = !raycasterMesh.length;
     };
 
@@ -75,14 +77,20 @@ export default class CommonModel extends ThreeBase {
         this.initCamera();
         this.initLight();
         this.loaderModel((gltf) => {
-            console.log({gltf})
+            console.log({ gltf })
             this.scene.add(gltf.scene);
             this.modelScene = gltf.scene;
             this.mixer = AnimateControls.playAllAnimate(gltf.scene, gltf.animations, 1, this.props.playAllSpecialAnimateFn);
             this.modelScene.traverse((child) => {
                 ShowdowControls.openShowDowAndLight(child, this.props.intensityDivided);
             });
-            
+
+            this.meshAABB = CreateMesh.creatAABBFromMesh({
+                addMesh: this.modelScene,
+                name: 'parent'
+            })
+            this.scene.add(this.meshAABB);
+
             this.renderer?.render(this.scene, this.camera);
             this.sceneUpdate();
             loadComplete && loadComplete(gltf)
@@ -97,8 +105,8 @@ export default class CommonModel extends ThreeBase {
     public getModelScene() {
         return this.modelScene;
     }
-    public getThrottleOnDocumentMouseMove(){
+    public getThrottleOnDocumentMouseMove() {
         return this.throttleOnDocumentMouseMove;
     }
-   
+
 }
