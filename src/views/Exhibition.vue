@@ -6,7 +6,7 @@
   <div class="Exhibition page">
     <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" class="loadingPage" v-if="progress !== 100" @complete="complete" />
     <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
-    <DragMove v-if="isMobile() && !isShowLoadingIcon" @statusKeys="changeStatusKey" />
+    <DragMove v-if="isMobile() " @statusKeys="changeStatusKey" />
     <!-- 按钮位置 -->
     <div class="icon">
       <div class="item">

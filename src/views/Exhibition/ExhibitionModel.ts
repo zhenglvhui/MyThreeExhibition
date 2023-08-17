@@ -259,11 +259,9 @@ export default class ExhibitionModel extends ThreeBase {
                     this.filterClickList.push(mesh.name);
                     this.modelScene.add(mesh);
                 }
-
                 // 前往
                 if (child.userData?.name == "move-computer") {
                     this.initMeshPoint = child;
-
                 }
                 if (child.userData?.name == "enter-arrow") {
                     this.enterArrow = child;
