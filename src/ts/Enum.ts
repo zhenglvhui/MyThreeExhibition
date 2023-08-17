@@ -27,9 +27,10 @@ enum ENUM_MOUSE_KEY {
   keyS = "KeyS",
   keyA = "KeyA",
   keyD = "KeyD",
-  keyV = "KeyV", 
+  keyV = "KeyV",
   space = "Space"
 }
 
 
-export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE,ENUM_MOUSE_KEY };
+
+export { ENUM_LIGHT_HELPER, ENUM_MESH_TYPE, ENUM_VIEW_TYPE, ENUM_MOUSE_KEY };

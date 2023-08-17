@@ -11,7 +11,7 @@ import { ENUM_MESH_TYPE } from "../Enum";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
 import KeyControl from "@/ts/ThreeRender/KeyControl";
 import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
-import { ON_MODEL_PROGRESS } from "../Constants";
+import { MODEL_NAME_LIST, ON_MODEL_PROGRESS } from "../Constants";
 
 
 class ThreeBase extends Emitter {
@@ -40,20 +40,18 @@ class ThreeBase extends Emitter {
     static isLight(obj: unknown): obj is THREE.Light {
         return obj instanceof THREE.Light;
     }
-  
+
     // username 做切割处理
     static splitUsername(username: string = ''): UserData {
         let splitList: string[] = username.split('-');
         let type: ENUM_MESH_TYPE = splitList.length >= 2 ? <ENUM_MESH_TYPE>splitList[0] : ENUM_MESH_TYPE.none;
         let meshName: string = splitList[1] && splitList[1].split('_')[0]
-        let text: string = splitList[2] && splitList[2].split('_')[0]
         return {
             name: username,
             type,
             meshName,
             meshNameAll: splitList[1],
-            text,
-            textAll: splitList[2],
+            text: MODEL_NAME_LIST[meshName],
         }
     }
 
@@ -107,7 +105,7 @@ class ThreeBase extends Emitter {
         );
     }
 
-   
+
     protected initStats() {
         this.stats.showPanel(0);
         this.stats.dom.style.position = "absolute";
@@ -267,8 +265,8 @@ class ThreeBase extends Emitter {
         return this.option;
     }
 
-    
-    public getInternalCameraY(){
+
+    public getInternalCameraY() {
         return this.internalCameraY;
     }
 

@@ -78,7 +78,6 @@ interface UserData {
     meshName: string; // 要被作用的模型名称
     meshNameAll: string; // 完整模型
     text: string; // 文案
-    textAll: string; // 完整文案
 }
 
 interface MoveMeshOptions {

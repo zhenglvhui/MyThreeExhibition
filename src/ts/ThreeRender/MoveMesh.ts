@@ -6,10 +6,16 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import KeyControl from "./KeyControl";
 import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
 import { ENUM_MOUSE_KEY } from "../Enum";
+import { KeyStatus } from "../interface/commonInterface";
 
 interface CapsuleInfo {
     radius: number // 胶囊体半径，用于检测、
     segment: THREE.Line3
+}
+
+interface EnterKeyInfo {
+    key: ENUM_MOUSE_KEY,
+    point: THREE.Vector3
 }
 
 // 移动物体 
@@ -116,7 +122,7 @@ export default class MoveMesh {
     private checkCollision(deltaTime: number, collider: THREE.Mesh) {
         let { radius, segment } = this.capsuleInfo;
         this.tempBox.makeEmpty();
-        this.tempMat.copy(collider.matrixWorld).invert(); 
+        this.tempMat.copy(collider.matrixWorld).invert();
         this.tempSegment.copy(segment);
         this.tempSegment.start.applyMatrix4(this.character.matrixWorld).applyMatrix4(this.tempMat);
         this.tempSegment.end.applyMatrix4(this.character.matrixWorld).applyMatrix4(this.tempMat);
@@ -128,23 +134,23 @@ export default class MoveMesh {
             intersectsBounds: box => box.intersectsBox(this.tempBox),
             intersectsTriangle: tri => {
                 // 检查场景是否与胶囊相交，并调整
-                const triPoint = this.tempVector;
-                const capsulePoint = this.tempVector2;
-                const distance = tri.closestPointToSegment(this.tempSegment, triPoint, capsulePoint);
+                const triPoint: THREE.Vector3 = this.tempVector;
+                const capsulePoint: THREE.Vector3 = this.tempVector2;
+                const distance: number = tri.closestPointToSegment(this.tempSegment, triPoint, capsulePoint);
                 if (distance < radius) {
-                    const depth = radius - distance;
-                    const direction = capsulePoint.sub(triPoint).normalize();
+                    const depth: number = radius - distance;
+                    const direction: THREE.Vector3 = capsulePoint.sub(triPoint).normalize();
                     this.tempSegment.start.addScaledVector(direction, depth);
                     this.tempSegment.end.addScaledVector(direction, depth);
                 }
             }
         });
-        const newPosition = this.tempVector;
+        const newPosition: THREE.Vector3 = this.tempVector;
         newPosition.copy(this.tempSegment.start).applyMatrix4(collider.matrixWorld);
-        const deltaVector = this.tempVector2;
+        const deltaVector: THREE.Vector3 = this.tempVector2;
         deltaVector.subVectors(newPosition, this.character.position);
         deltaVector.setY(deltaVector.y - 5);
-        const offset = Math.max(0.0, deltaVector.length() - 1e-5);
+        const offset: number = Math.max(0.0, deltaVector.length() - 1e-5);
         deltaVector.normalize().multiplyScalar(offset);
         this.character.position.add(deltaVector);
     }
@@ -153,35 +159,31 @@ export default class MoveMesh {
     // 键盘时移动位置
     private keyMoveCharacter(deltaTime: number) {
         if (!this.isCanMove || !this.canMoveEnbled) return;
-        const angle = this.controls.getAzimuthalAngle(); 
-        const ketStatus = this.keyControl.getKeyStatus();
-        if (ketStatus[ENUM_MOUSE_KEY.keyW]) {
-            this.tempVector.set(0, 0, -1).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
-            this.updateCamera();
-        }
-
-        if (ketStatus[ENUM_MOUSE_KEY.keyS]) {
-            this.tempVector.set(0, 0, 1).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
-            this.updateCamera();
-        }
-
-        if (ketStatus[ENUM_MOUSE_KEY.keyA]) {
-            this.tempVector.set(-1, 0, 0).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
-            this.updateCamera();
-        }
-
-        if (ketStatus[ENUM_MOUSE_KEY.keyD]) {
-            this.tempVector.set(1, 0, 0).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
-            this.updateCamera();
+        const angle: number = this.controls.getAzimuthalAngle();
+        const ketStatus: KeyStatus = this.keyControl.getKeyStatus();
+        const enterKeyList: EnterKeyInfo[] = [{
+            key: ENUM_MOUSE_KEY.keyW,
+            point: new THREE.Vector3(0, 0, -1)
+        }, {
+            key: ENUM_MOUSE_KEY.keyS,
+            point: new THREE.Vector3(0, 0, 1)
+        }, {
+            key: ENUM_MOUSE_KEY.keyA,
+            point: new THREE.Vector3(-1, 0, 0)
+        }, {
+            key: ENUM_MOUSE_KEY.keyD,
+            point: new THREE.Vector3(1, 0, 0)
+        }];
+        for (let i = 0; i < enterKeyList.length; i++) {
+            let item = enterKeyList[i];
+            if (ketStatus[item.key]) {
+                this.tempVector.set(item.point.x, item.point.y, item.point.z).applyAxisAngle(this.upVector, angle);
+                this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
+                this.updateCamera();
+            }
         }
         this.character.updateMatrixWorld();
     }
-
-
 
     /**
      * 
@@ -195,7 +197,7 @@ export default class MoveMesh {
         // this.mainModel.updateOrbitControlsFromOrigin();
     }
 
-    public getIsCanMove(){
+    public getIsCanMove() {
         return this.isCanMove;
     }
 }
