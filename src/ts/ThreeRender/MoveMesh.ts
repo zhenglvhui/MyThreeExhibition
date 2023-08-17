@@ -186,7 +186,7 @@ export default class MoveMesh {
     /**
      * 
      * @param deltaTime 间隔时间
-     * @param collider   collider: THREE.Mesh
+     * @param collider  场景白膜点位
      */
     public update(deltaTime: number, collider: THREE.Mesh) {
         if (!this.isCanMove || !this.canMoveEnbled) return;
