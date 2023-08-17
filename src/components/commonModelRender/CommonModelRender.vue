@@ -6,7 +6,7 @@
   <div class="page">
     <!-- @click="getCamera" -->
     <div ref="container"></div>
-    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" v-if="progress !== 100" @complete="complete" />
+    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" v-if="isLoading" @complete="complete" />
   </div>
 </template>
 
@@ -85,16 +85,20 @@ let getCamera = () => {
   console.log({ camera: commonModel.getCamera() });
 };
 let progress: Ref<number> = ref(0);
+let isLoading:Ref<boolean> = ref(true);
 
 // 加载进度条
-type ProgessParams = [nowProgress: number];
-commonModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
-  progress.value = nowProgress;
-});
+// type ProgessParams = [nowProgress: number];
+// commonModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
+//   progress.value = nowProgress;
+// });
 
 let complete = () => {
-  commonModel.init(() => {},(xhr) => {
+  commonModel.init(() => {
+    isLoading.value = false;
+  },(xhr) => {
     let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
+    progress.value = nowProgress;
     isShowLoadingIcon.value = nowProgress === 100;
   });
 };

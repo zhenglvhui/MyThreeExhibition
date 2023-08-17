@@ -4,7 +4,7 @@
 -->
 <template>
   <div class="Exhibition page">
-    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" class="loadingPage" v-if="progress !== 100" @complete="complete" />
+    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" class="loadingPage" v-if="isLoading" @complete="complete" />
     <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
     <DragMove v-if="isMobile() " @statusKeys="changeStatusKey" />
     <!-- 按钮位置 -->
@@ -42,6 +42,7 @@ let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
 let isShowLoadingIcon: Ref<boolean> = ref(false);
 let container: Ref<HTMLElement | null> = ref(null);
+let isLoading:Ref<boolean> = ref(true);
 let exhibitionModel: ExhibitionModel = new ExhibitionModel({
   renderAlpha: 0,
   renderContainer: container,
@@ -98,10 +99,10 @@ exhibitionModel.$on(ON_CHANGE_VIEW, ([_currentView]: ChangeViewParams) => {
 });
 
 // 加载进度条
-type ProgessParams = [nowProgress: number];
-exhibitionModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
-  progress.value = nowProgress;
-});
+// type ProgessParams = [nowProgress: number];
+// exhibitionModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
+//   progress.value = nowProgress;
+// });
 
 // 展示说明文案
 type ShowTootipsParams = [meshName: string];
@@ -111,8 +112,11 @@ exhibitionModel.$on(ON_SHOW_TOOTIPS, ([meshName]: ShowTootipsParams) => {
 });
 
 let complete = () => {
-  exhibitionModel.init(() => {},(xhr) => {
+  exhibitionModel.init(() => {
+    isLoading.value = false;
+  },(xhr) => {
     let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
+    progress.value = nowProgress;
     isShowLoadingIcon.value = nowProgress === 100;
   });
 };

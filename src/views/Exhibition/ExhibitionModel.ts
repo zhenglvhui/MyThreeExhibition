@@ -46,10 +46,10 @@ export default class ExhibitionModel extends ThreeBase {
         instance = this;
         this.option = option;
 
-        THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
-            let nowProgress: number = Math.floor((loaded / total) * 100);
-            this.$emit(ON_MODEL_PROGRESS, nowProgress)
-        };
+        // THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+        //     let nowProgress: number = Math.floor((loaded / total) * 100);
+        //     this.$emit(ON_MODEL_PROGRESS, nowProgress)
+        // };
 
     }
 

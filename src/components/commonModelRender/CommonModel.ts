@@ -22,10 +22,10 @@ export default class CommonModel extends ThreeBase {
         super(option);
         this.option = option;
         this.props = props
-        THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
-            let nowProgress: number = Math.floor((loaded / total) * 100);
-            this.$emit(ON_MODEL_PROGRESS, nowProgress)
-        };
+        // THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+        //     let nowProgress: number = Math.floor((loaded / total) * 100);
+        //     this.$emit(ON_MODEL_PROGRESS, nowProgress)
+        // };
     }
 
     private initLight() {
