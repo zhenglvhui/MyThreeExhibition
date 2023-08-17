@@ -106,7 +106,7 @@ exhibitionModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
 // 展示说明文案
 type ShowTootipsParams = [meshName: string];
 exhibitionModel.$on(ON_SHOW_TOOTIPS, ([meshName]: ShowTootipsParams) => {
-  tootipsModelTitle.value = MODEL_NAME_LIST[meshName] || (isMobile() ? "移动端下方按钮可以控制移动" : "PC端键盘WSAD可以控制移动");
+  tootipsModelTitle.value = MODEL_NAME_LIST[meshName] || (isMobile() ? "移动端下方摇杆可以控制移动" : "PC端键盘WSAD可以控制移动");
   tootipsModelName.value = meshName;
 });
 
