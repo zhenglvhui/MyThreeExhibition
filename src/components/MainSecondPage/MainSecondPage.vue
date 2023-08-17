@@ -11,8 +11,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import CommonModelRender from "@/components/CommonModelRender/CommonModelRender.vue"; 
-import { reactive, defineEmits, onMounted, defineProps, ref, defineAsyncComponent } from "vue";
+import CommonModelRender from "@/components/CommonModelRender/CommonModelRender.vue";
+import { reactive, defineEmits, onMounted, defineProps, ref, Ref, defineAsyncComponent } from "vue";
 import carGlbUrl from "@/assets/models/car.glb";
 import moneyGlbUrl from "@/assets/models/money.glb";
 import firmamentGlbUrl from "@/assets/models/firmament.glb";
@@ -23,7 +23,7 @@ import mypikachuGlbUrl from "@/assets/models/mypikachu.glb";
 import robotGlbUrl from "@/assets/models/robot.glb";
 import AboutMe from "@/components/AboutMe/AboutMe.vue";
 import * as THREE from "three";
-import { ItCommonRenderData, ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
+import { ItCommonRenderData, ItCommonRenderItemData, ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 
 let emits = defineEmits(["close"]);
 const props = withDefaults(defineProps<{ meshName?: string; isLoading: boolean }>(), {
@@ -46,7 +46,6 @@ let commonRenderData: ItCommonRenderData = reactive({
       enablePan: false, // 不允许平移
       maxPolarAngle: Math.PI * 0.45, // 最大垂直角度
     },
-    // renderOutputColorSpace: THREE.SRGBColorSpace
   },
   // 金币
   money: {
@@ -60,7 +59,6 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 30, // 最大缩放距离
       minDistance: 15, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.45, // 最大垂直角度
     },
     glbUrl: moneyGlbUrl,
     isNeedAmbientLightL: true,
@@ -80,11 +78,9 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 11, // 最大缩放距离
       minDistance: 7, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
     },
     glbUrl: firmamentGlbUrl,
     isNeedAmbientLight: true,
-    // ambientIntensity:150,
     isNeedCameraPointLight: true,
     cameraPointLightIntensity: 300,
     isSelfRotation: true,
@@ -101,7 +97,6 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 6, // 最大缩放距离
       minDistance: 4, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
     },
     glbUrl: earthGlbUrl,
     isNeedAmbientLight: true,
@@ -124,7 +119,6 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 6, // 最大缩放距离
       minDistance: 4, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
     },
     glbUrl: treeGlbUrl,
     isNeedAmbientLight: true,
@@ -147,13 +141,9 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 10, // 最大缩放距离
       minDistance: 8, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
     },
     glbUrl: rubikCubeGlbUrl,
-    // isNeedAmbientLight: true,
-    // isNeedCameraPointLight: true,
     cameraPointLightIntensity: 0.5,
-    // intensityDivided:3,
     isSelfRotation: false,
     renderOutputColorSpace: THREE.SRGBColorSpace,
   },
@@ -169,7 +159,6 @@ let commonRenderData: ItCommonRenderData = reactive({
       maxDistance: 6, // 最大缩放距离
       minDistance: 3, // 最小缩放距离
       enablePan: false, // 不允许平移
-      // maxPolarAngle: Math.PI * 0.5, // 最大垂直角度
     },
     glbUrl: mypikachuGlbUrl,
     isNeedAmbientLight: true,
@@ -197,7 +186,6 @@ let commonRenderData: ItCommonRenderData = reactive({
     ambientIntensity: 7,
     isNeedCameraPointLight: true,
     cameraPointLightIntensity: 30,
-    // intensityDivided:3,
     isSelfRotation: false,
     renderOutputColorSpace: THREE.SRGBColorSpace,
     playAllSpecialAnimateFn: [
@@ -208,8 +196,8 @@ let commonRenderData: ItCommonRenderData = reactive({
     ],
   },
 });
-let renderData = reactive({});
-let isShowCommonModelRender = ref(false);
+let renderData: ItCommonRenderItemData | undefined = reactive({});
+let isShowCommonModelRender: Ref<boolean> = ref(false);
 
 // 关闭当前页面
 let closePage = () => {
