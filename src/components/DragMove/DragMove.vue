@@ -60,7 +60,7 @@ const move = (event: TouchEvent) => {
   internalBoxOffset.offsetLeft = getOffer(newClientX, oldClientX, clientWidth - internalBoxClientWidth);
   internalBoxOffset.offsetTop = getOffer(newClientY, oldClientY, clientHeight - internalBoxClientHeight);
   let vector2: THREE.Vector2 = new THREE.Vector2(internalBoxOffset.offsetLeft, internalBoxOffset.offsetTop);
-  let angle = (180 / Math.PI) * vector2.angleTo(new THREE.Vector2(internalBoxOffset.offsetLeft > 0 ? 1 : -1, 0));
+  let angle: number = (180 / Math.PI) * vector2.angleTo(new THREE.Vector2(internalBoxOffset.offsetLeft > 0 ? 1 : -1, 0));
   getMouseEnterForAngle(angle);
 };
 
@@ -136,7 +136,7 @@ const getMouseEnterForAngle = (angle: number) => {
       return item.key;
     }
   }
-  console.log("滚轮意外情况");
+  console.log("摇杆意外情况");
 };
 
 // //鼠标释放时候的函数
