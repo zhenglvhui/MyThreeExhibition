@@ -8,9 +8,11 @@ interface ItFnArr {
     fn: string;
     fnParams: any;
 }
+
+// AnimationAction 中的方法  [{animationName:'', fnArr: [{fn:'', fnParams:''}]}]
 interface ItPlayAllSpecialAnimateFn {
     animationName: String;
-    fnArr: ItFnArr[];
+    fnArr: ItFnArr[]; 
 }
 
 type ItControlsObject = {
@@ -30,7 +32,7 @@ interface ItCommonRenderItemData {
     intensityDivided?: number; // 功率要除以的倍数
     isSelfRotation?: boolean;  // 模型是否自转
     renderOutputColorSpace?: THREE.ColorSpace; // render颜色类型
-    playAllSpecialAnimateFn?: ItPlayAllSpecialAnimateFn[]; // 动画执行Fn    // AnimationAction 中的方法 // [{animationName:'', fnArr: [{fn:'', fnParams:''}]}]
+    playAllSpecialAnimateFn?: ItPlayAllSpecialAnimateFn[]; // 动画执行Fn    
 }
 interface ItCommonRenderData {
     [propName: string]: ItCommonRenderItemData;
