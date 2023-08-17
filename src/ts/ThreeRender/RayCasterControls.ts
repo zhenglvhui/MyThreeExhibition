@@ -35,7 +35,7 @@ export default class RayCasterControls {
     //  判断相机的射线是否和物体有接触
     static cameraInRayCaster(raycastObjects: THREE.Object3D[], camera: THREE.Camera):THREE.Intersection<THREE.Object3D<THREE.Event>>[] {
         let raycaster: THREE.Raycaster = new THREE.Raycaster();
-        let hoverPoint = new THREE.Vector2(0, 0);
+        let hoverPoint: THREE.Vector2 = new THREE.Vector2(0, 0);
         raycaster.setFromCamera(hoverPoint, camera);
         const intersects = raycaster.intersectObjects(raycastObjects);
         return intersects;

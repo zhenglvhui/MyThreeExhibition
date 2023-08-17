@@ -3,15 +3,19 @@
  * @Description: Loading页面
 -->
 <template>
-  <div class="page">
+  <div class="loadingPage">
     <div class="progessDiv">
-      <div class="text">Loading...</div>
+      <!-- Loading... -->
+      <div class="text">{{isShowLoadingIcon?"正在渲染资源...":"正在加载资源..."}}</div>
       <div class="progessBox">
         <div class="progess" :style="{ width: props.progress + '%' }"></div>
       </div>
       <div class="tips">{{ tips }}</div>
     </div>
-    <div class="loading" ref="container"></div>
+    <div class="loadingIcon" v-show="isShowLoadingIcon">
+      <img src="@/assets/images/loading.png" alt="" />
+    </div>
+    <div class="loading" ref="container" v-show="!isShowLoadingIcon"></div>
   </div>
 </template>
 
@@ -25,8 +29,9 @@ const emit = defineEmits(["complete"]);
 const props = withDefaults(
   defineProps<{
     progress: number;
+    isShowLoadingIcon: boolean;
   }>(),
-  { progress: 0 }
+  { progress: 0, isShowLoadingIcon: false }
 );
 let container: Ref<HTMLElement | null> = ref(null);
 let loadingModel = new LoadingModel({
@@ -71,10 +76,14 @@ onBeforeUnmount(() => {
 });
 </script>
 <style scoped lang="less">
-.page {
+.loadingPage {
   position: fixed;
   left: 0;
   top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background-color: #000;
 }
 
 .progessDiv {
@@ -115,6 +124,32 @@ onBeforeUnmount(() => {
     color: #00ff00;
     text-align: center;
     font-weight: 600;
+  }
+}
+
+.loadingIcon {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100px;
+    height: 100px;
+    animation: loading 1s linear infinite;
+  }
+  @keyframes loading {
+    0% {
+      transform: rotate(0);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }
 

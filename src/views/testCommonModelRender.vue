@@ -1,8 +1,8 @@
 <template>
   <div class="page">
-    <CommonModelRender v-bind="renderData" />
+    <!-- <CommonModelRender v-bind="renderData" /> -->
     <!-- <DragMove /> -->
-    <!-- <LoadingModel/> -->
+    <LoadingModel :isShowLoadingIcon="true"/>
   </div>
 </template>
 <script setup lang="ts">

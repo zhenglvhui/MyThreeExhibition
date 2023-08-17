@@ -11,6 +11,7 @@ import { ENUM_MESH_TYPE } from "../Enum";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
 import KeyControl from "@/ts/ThreeRender/KeyControl";
 import { MeshBVH, MeshBVHOptions, StaticGeometryGenerator } from "three-mesh-bvh";
+import { ON_MODEL_PROGRESS } from "../Constants";
 
 
 class ThreeBase extends Emitter {

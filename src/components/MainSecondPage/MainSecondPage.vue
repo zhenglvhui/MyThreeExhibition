@@ -3,7 +3,7 @@
     <div class="closeIcon" @click="closePage"></div>
     <div class="commonModelRender">
       <template v-for="item in Object.keys(commonRenderData)" :key="item">
-        <CommonModelRender v-if="meshName == item" v-bind="commonRenderData[item]" :isLoading="isLoading" />
+        <CommonModelRender v-if="meshName == item" v-bind="commonRenderData[item]"  />
       </template>
       <!-- v-if="isShowCommonModelRender"  -->
       <AboutMe v-if="meshName == 'computer'"></AboutMe>
@@ -26,9 +26,7 @@ import * as THREE from "three";
 import { ItCommonRenderData, ItCommonRenderItemData, ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/modelRender";
 
 let emits = defineEmits(["close"]);
-const props = withDefaults(defineProps<{ meshName?: string; isLoading: boolean }>(), {
-  isLoading: true,
-});
+const props = withDefaults(defineProps<{ meshName?: string;  }>(), {});
 
 let commonRenderData: ItCommonRenderData = reactive({
   // 小车

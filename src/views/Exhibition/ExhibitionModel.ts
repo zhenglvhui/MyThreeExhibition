@@ -5,13 +5,15 @@ import { throttle } from "@/ts/util/util";
 import * as THREE from 'three';
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
-import { ON_CHANGE_VIEW, ON_SHOW_SECOND_PAGE, ON_SHOW_TOOTIPS } from "@/ts/Constants";
+import { ON_CHANGE_VIEW, ON_MODEL_PROGRESS, ON_SHOW_SECOND_PAGE, ON_SHOW_TOOTIPS } from "@/ts/Constants";
 import { layerXY, pointXY } from "@/ts/interface/commonInterface";
 import RayCasterControls from "@/ts/ThreeRender/RayCasterControls";
 import CreateMesh from "@/ts/ThreeRender/CreateMesh";
 import AnimateControls from "@/ts/ThreeRender/AnimateControls";
 import ShowdowControls from "@/ts/ThreeRender/ShowdowControls";
 import MoveMesh from "@/ts/ThreeRender/MoveMesh";
+
+
 let instance: ExhibitionModel | null = null;
 
 interface RaycasterMeshList {
@@ -28,7 +30,6 @@ export default class ExhibitionModel extends ThreeBase {
     private currentView: ENUM_VIEW_TYPE = ENUM_VIEW_TYPE.internal; // 当前视图
     private initMeshPoint !: THREE.Object3D<THREE.Event>; // 初始模型点位
     private meshCeiling!: THREE.Object3D<THREE.Event>; // 天花板模型
-    private mainSecondPageMeshNameList: string[] = []; //  点击物体集合
     private spriteMeshList: THREE.Object3D<THREE.Event>[] = []; // 点精灵图集合
     private spriteInitScale: pointXY = { x: 8, y: 6 }; // 点精灵初始缩放大小
     private enterArrow !: THREE.Object3D<THREE.Event>; // 进入箭头
@@ -44,6 +45,11 @@ export default class ExhibitionModel extends ThreeBase {
         if (instance) return instance;
         instance = this;
         this.option = option;
+
+        THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+            let nowProgress: number = Math.floor((loaded / total) * 100);
+            this.$emit(ON_MODEL_PROGRESS, nowProgress)
+        };
 
     }
 
@@ -108,7 +114,7 @@ export default class ExhibitionModel extends ThreeBase {
         let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.raycasterMeshList.map(item => item.meshAABB), this.filterClickList);
         let firstMesh = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        let assMesh:THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
+        let assMesh: THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
         ThreeBase.recurMeshParentName(assMesh, [ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.enter], this.handerClick);
     };
 
@@ -118,20 +124,8 @@ export default class ExhibitionModel extends ThreeBase {
      */
     private showSecondPage(mesh: THREE.Object3D<THREE.Event>) {
         let meshName: string = (mesh.userData as UserData).meshName;
-        let mainSecondPageisLoading;
-        // 判断是否加载过，如果加载过了，下次就不进行loading
-        if (this.mainSecondPageMeshNameList.filter((item: string) => item == meshName).length >= 1) {
-            mainSecondPageisLoading = false;
-        } else {
-            this.mainSecondPageMeshNameList.push(meshName);
-            mainSecondPageisLoading = true;
-        }
         this.moveMesh.canMoveEnbled = false;
-        this.$emit(ON_SHOW_SECOND_PAGE, {
-            isShowMainSecondPage: true,
-            mainSecondPageMeshName: meshName,
-            mainSecondPageisLoading
-        });
+        this.$emit(ON_SHOW_SECOND_PAGE, true, meshName);
     };
 
     // 点击要移动的物体 或则要展示二级页面的物体时触发 点击事件时 @param {*} supportedTypes 支持的类型
@@ -210,7 +204,7 @@ export default class ExhibitionModel extends ThreeBase {
         let { raycasterMesh } = RayCasterControls.getIntersects(event.pageX, event.pageY, this.camera, this.raycasterMeshList.map(item => item.meshAABB));
         let firstMesh: THREE.Object3D<THREE.Event> | undefined = raycasterMesh.length > 0 ? raycasterMesh[0].object : undefined; // 第一个被射线碰到的物体
         if (!firstMesh) return;
-        let assMesh:THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
+        let assMesh: THREE.Object3D = this.raycasterMeshList.filter(item => item.name === firstMesh?.name)[0].assMesh;
         ThreeBase.recurMeshParentName(assMesh, [ENUM_MESH_TYPE.click], this.handerMove);
     };
 
@@ -294,16 +288,12 @@ export default class ExhibitionModel extends ThreeBase {
             this.collider = MoveMesh.addCollider(this.modelScene);
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
             this.renderer.render(this.scene, this.camera);
-            this.camera.position.set(-556, 563, 227);
             this.controls.target = new THREE.Vector3(0, 0, -1);
-            setTimeout(() => {
-                this.exhibitionInsideControls();
-            }, 800);
-
+            this.exhibitionInsideControls();
             this.sceneUpdate();
-            loadComplete && loadComplete(gltf)
+            loadComplete && loadComplete(gltf);
         }, (xhr) => {
-            loadProcess && loadProcess(xhr)
+            loadProcess && loadProcess(xhr);
         })
         this.initControls();
         this.initKeyControl(this);

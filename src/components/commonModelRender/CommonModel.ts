@@ -1,3 +1,4 @@
+import { ON_MODEL_PROGRESS } from "@/ts/Constants";
 import AnimateControls from "@/ts/ThreeRender/AnimateControls";
 import CreateMesh from "@/ts/ThreeRender/CreateMesh";
 import RayCasterControls from "@/ts/ThreeRender/RayCasterControls";
@@ -21,6 +22,10 @@ export default class CommonModel extends ThreeBase {
         super(option);
         this.option = option;
         this.props = props
+        THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+            let nowProgress: number = Math.floor((loaded / total) * 100);
+            this.$emit(ON_MODEL_PROGRESS, nowProgress)
+        };
     }
 
     private initLight() {

@@ -4,12 +4,9 @@
 -->
 <template>
   <div class="page">
-    <div class="loadingIcon" v-if="isShowLoadingIcon">
-      <img src="@/assets/images/loading.png" alt="" />
-    </div>
     <!-- @click="getCamera" -->
     <div ref="container"></div>
-    <Loading :progress="progress" v-if="progress != 100 && isLoading" @complete="complete" />
+    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" v-if="progress !== 100" @complete="complete" />
   </div>
 </template>
 
@@ -23,9 +20,9 @@ import { ItControlsObject, ItPlayAllSpecialAnimateFn } from "@/ts/interface/mode
 import { XYZ } from "@/ts/interface/commonInterface";
 import * as CommonInterface from "@/ts/interface/commonInterface";
 import CommonModel from "./CommonModel";
+import { ON_MODEL_PROGRESS } from "@/ts/Constants";
 
 interface ItCommonRenderItemData {
-  isLoading: boolean;
   camraPosition?: XYZ; // 相机的位置
   glbUrl?: string; // 要加载glb路径
   controlsObject?: ItControlsObject; // 控制器的限制范围
@@ -63,11 +60,10 @@ const props = withDefaults(defineProps<ItCommonRenderItemData>(), {
   isSelfRotation: false,
   renderOutputColorSpace: THREE.LinearSRGBColorSpace,
   playAllSpecialAnimateFn: () => [],
-  isLoading: true,
 });
 
 let container: Ref<HTMLElement | null> = ref(null);
-let isShowLoadingIcon = ref(true);
+let isShowLoadingIcon = ref(false);
 
 let commonModel = new CommonModel(
   {
@@ -85,32 +81,29 @@ let commonModel = new CommonModel(
   props
 );
 
-let getCamera = (): void => {
+let getCamera = () => {
   console.log({ camera: commonModel.getCamera() });
 };
 let progress: Ref<number> = ref(0);
 
-let complete = (): void => {
-  commonModel.init(
-    () => {
-      isShowLoadingIcon.value = false;
-    },
-    (xhr) => {
-      progress.value = Math.floor((xhr.loaded / xhr.total) * 100);
-    }
-  );
-};
-
-onMounted((): void => {
-  if (!props.isLoading) {
-    // 动画执行完之后，在加载模型，否则会卡顿
-    setTimeout(() => {
-      complete();
-    }, 350);
-  }
+// 加载进度条
+type ProgessParams = [nowProgress: number];
+commonModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
+  progress.value = nowProgress;
 });
 
-onBeforeUnmount((): void => {
+let complete = () => {
+  commonModel.init(() => {},(xhr) => {
+    let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
+    isShowLoadingIcon.value = nowProgress === 100;
+  });
+};
+
+onMounted(() => {
+  
+});
+
+onBeforeUnmount(() => {
   try {
     commonModel.destroyModel({
       modelScene: commonModel.getModelScene(),

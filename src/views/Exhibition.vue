@@ -4,12 +4,9 @@
 -->
 <template>
   <div class="Exhibition page">
-    <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
+    <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" class="loadingPage" v-if="progress !== 100" @complete="complete" />
     <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
-    <DragMove v-if="isMobile() && !isShowLoadingIcon" @status-keys="changeStatusKey" />
-    <div class="loadingIcon" v-if="isShowLoadingIcon">
-      <img src="@/assets/images/loading.png" alt="" />
-    </div>
+    <DragMove v-if="isMobile() && !isShowLoadingIcon" @statusKeys="changeStatusKey" />
     <!-- 按钮位置 -->
     <div class="icon">
       <div class="item">
@@ -19,13 +16,7 @@
     </div>
     <!-- 二级弹出位置 -->
     <Transition name="scale">
-      <MainSecondPage
-        class="mainSecondPage"
-        @close="hideSecondPage"
-        :meshName="mainSecondPageMeshName"
-        :isLoading="mainSecondPageisLoading"
-        v-if="isShowMainSecondPage"
-      />
+      <MainSecondPage class="mainSecondPage" @close="hideSecondPage" :meshName="mainSecondPageMeshName" v-if="isShowMainSecondPage" />
     </Transition>
 
     <!-- @click="getCamera" -->
@@ -44,13 +35,12 @@ import MainSecondPage from "@/components/MainSecondPage/MainSecondPage.vue";
 import ExhibitionModel from "@/views/Exhibition/ExhibitionModel";
 import TootipsModel from "@/components/TootipsModel/TootipsModel.vue";
 import DragMove from "@/components/DragMove/DragMove.vue";
-import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW, ON_SHOW_TOOTIPS, MODEL_NAME_LIST } from "@/ts/Constants";
+import { ON_SHOW_SECOND_PAGE, ON_CHANGE_VIEW, ON_SHOW_TOOTIPS, MODEL_NAME_LIST, ON_MODEL_PROGRESS } from "@/ts/Constants";
 import { KeyStatus } from "@/ts/interface/commonInterface";
 let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
-let mainSecondPageisLoading: Ref<boolean> = ref(true); //  子页面是否需要loading
-let isShowLoadingIcon: Ref<boolean> = ref(true);
+let isShowLoadingIcon: Ref<boolean> = ref(false);
 let container: Ref<HTMLElement | null> = ref(null);
 let exhibitionModel: ExhibitionModel = new ExhibitionModel({
   renderAlpha: 0,
@@ -59,7 +49,7 @@ let exhibitionModel: ExhibitionModel = new ExhibitionModel({
   cameraFov: isMobile() ? 80 : 60,
   cameraNear: 10,
   cameraFar: 100000,
-  cameraPosition: new THREE.Vector3(0, 0, 0),
+  cameraPosition: new THREE.Vector3(-556, 563, 227),
   blgUrl: exhibitionGlbUrl,
 });
 let tootipsModelTitle: Ref<string> = ref("");
@@ -95,39 +85,36 @@ let hideSecondPage = () => {
 };
 
 // 点击视图,打开二级页面
-type changeViewParams = {
-  isShowMainSecondPage: boolean;
-  mainSecondPageMeshName: string;
-  mainSecondPageisLoading: boolean;
-};
-exhibitionModel.$on(ON_SHOW_SECOND_PAGE, (paramsArr: changeViewParams[]) => {
-  let params = paramsArr[0];
-  isShowMainSecondPage.value = params.isShowMainSecondPage;
-  mainSecondPageMeshName.value = params.mainSecondPageMeshName;
-  mainSecondPageisLoading.value = params.mainSecondPageisLoading;
+type ShowSecondPage = [isShow: boolean, meshName: string];
+exhibitionModel.$on(ON_SHOW_SECOND_PAGE, ([isShow, meshName]: ShowSecondPage) => {
+  isShowMainSecondPage.value = isShow;
+  mainSecondPageMeshName.value = meshName;
 });
 
 // 右下角切换视图
-exhibitionModel.$on(ON_CHANGE_VIEW, (params: ENUM_VIEW_TYPE[]) => {
-  currentView.value = params[0];
+type ChangeViewParams = [_currentView: ENUM_VIEW_TYPE];
+exhibitionModel.$on(ON_CHANGE_VIEW, ([_currentView]: ChangeViewParams) => {
+  currentView.value = _currentView;
+});
+
+// 加载进度条
+type ProgessParams = [nowProgress: number];
+exhibitionModel.$on(ON_MODEL_PROGRESS, ([nowProgress]: ProgessParams) => {
+  progress.value = nowProgress;
 });
 
 // 展示说明文案
-exhibitionModel.$on(ON_SHOW_TOOTIPS, (params: string[]) => {
-  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || (isMobile() ? "移动端下方按钮可以控制移动" : "PC端键盘WSAD可以控制移动");
-  tootipsModelName.value = params[0];
+type ShowTootipsParams = [meshName: string];
+exhibitionModel.$on(ON_SHOW_TOOTIPS, ([meshName]: ShowTootipsParams) => {
+  tootipsModelTitle.value = MODEL_NAME_LIST[meshName] || (isMobile() ? "移动端下方按钮可以控制移动" : "PC端键盘WSAD可以控制移动");
+  tootipsModelName.value = meshName;
 });
 
 let complete = () => {
-  exhibitionModel.init(
-    () => {
-      isShowLoadingIcon.value = false;
-    },
-    (xhr) => {
-      let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
-      progress.value = nowProgress;
-    }
-  );
+  exhibitionModel.init(() => {},(xhr) => {
+    let nowProgress: number = Math.floor((xhr.loaded / xhr.total) * 100);
+    isShowLoadingIcon.value = nowProgress === 100;
+  });
 };
 
 onMounted(() => {});
@@ -213,31 +200,5 @@ onMounted(() => {});
 .scale-leave-to {
   opacity: 0;
   transform: scale(0);
-}
-
-.loadingIcon {
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: 100px;
-    height: 100px;
-    animation: loading 1s linear infinite;
-  }
-  @keyframes loading {
-    0% {
-      transform: rotate(0);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 }
 </style>
