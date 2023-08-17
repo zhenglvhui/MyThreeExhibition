@@ -4,6 +4,7 @@
 -->
 <template>
   <div class="Exhibition page">
+    <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
     <TootipsModel :title="tootipsModelTitle" :modelName="tootipsModelName" />
     <DragMove v-if="isMobile() && !isShowLoadingIcon" @status-keys="changeStatusKey" />
     <div class="loadingIcon" v-if="isShowLoadingIcon">
@@ -29,8 +30,6 @@
 
     <!-- @click="getCamera" -->
     <div ref="container"></div>
-
-    <Loading :progress="progress" class="loadingPage" v-if="progress != 100" @complete="complete" />
   </div>
 </template>
 
@@ -51,9 +50,9 @@ let currentView = ref(ENUM_VIEW_TYPE.internal); // 当前视图
 let isShowMainSecondPage: Ref<boolean> = ref(false); // 是否打开二级弹出
 let mainSecondPageMeshName: Ref<string | undefined> = ref(undefined);
 let mainSecondPageisLoading: Ref<boolean> = ref(true); //  子页面是否需要loading
-let isShowLoadingIcon = ref(true);
+let isShowLoadingIcon: Ref<boolean> = ref(true);
 let container: Ref<HTMLElement | null> = ref(null);
-let exhibitionModel = new ExhibitionModel({
+let exhibitionModel: ExhibitionModel = new ExhibitionModel({
   renderAlpha: 0,
   renderContainer: container,
   renderOutputColorSpace: THREE.SRGBColorSpace,
@@ -63,9 +62,9 @@ let exhibitionModel = new ExhibitionModel({
   cameraPosition: new THREE.Vector3(0, 0, 0),
   blgUrl: exhibitionGlbUrl,
 });
-let tootipsModelTitle = ref("");
-let tootipsModelName = ref("");
-let progress = ref(0);
+let tootipsModelTitle: Ref<string> = ref("");
+let tootipsModelName: Ref<string> = ref("");
+let progress: Ref<number> = ref(0);
 
 let changeView = () => {
   exhibitionModel.changeView();
@@ -74,20 +73,19 @@ let changeView = () => {
 let changeStatusKey = (keys: ENUM_MOUSE_KEY[]) => {
   let KeyControl = exhibitionModel.getKeyControl();
   let keyStatus = KeyControl.getKeyStatus();
-  let newStatus: KeyStatus  = {
+  let newStatus: KeyStatus = {
     [ENUM_MOUSE_KEY.keyW]: false,
-		[ENUM_MOUSE_KEY.keyS]: false,
-		[ENUM_MOUSE_KEY.keyA]: false,
-		[ENUM_MOUSE_KEY.keyD]: false,
-		[ENUM_MOUSE_KEY.keyV]: false,
-		[ENUM_MOUSE_KEY.space]: false
+    [ENUM_MOUSE_KEY.keyS]: false,
+    [ENUM_MOUSE_KEY.keyA]: false,
+    [ENUM_MOUSE_KEY.keyD]: false,
+    [ENUM_MOUSE_KEY.keyV]: false,
+    [ENUM_MOUSE_KEY.space]: false,
   };
   for (let index = 0; index < Object.keys(keyStatus).length; index++) {
-    let key:ENUM_MOUSE_KEY = Object.keys(keyStatus)[index] as ENUM_MOUSE_KEY;
+    let key: ENUM_MOUSE_KEY = Object.keys(keyStatus)[index] as ENUM_MOUSE_KEY;
     newStatus[key] = keys.includes(key);
   }
   KeyControl.setKeyStatus(newStatus);
- 
 };
 
 //隐藏页面
@@ -116,7 +114,7 @@ exhibitionModel.$on(ON_CHANGE_VIEW, (params: ENUM_VIEW_TYPE[]) => {
 
 // 展示说明文案
 exhibitionModel.$on(ON_SHOW_TOOTIPS, (params: string[]) => {
-  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || (isMobile() ? '移动端下方按钮可以控制移动': "PC端键盘WSAD可以控制移动");
+  tootipsModelTitle.value = MODEL_NAME_LIST[params[0]] || (isMobile() ? "移动端下方按钮可以控制移动" : "PC端键盘WSAD可以控制移动");
   tootipsModelName.value = params[0];
 });
 

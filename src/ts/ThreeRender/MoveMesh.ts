@@ -24,7 +24,6 @@ export default class MoveMesh {
     private upVector: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
     private isCanMove: boolean = false;
     private cameraRaycaster: THREE.Raycaster = new THREE.Raycaster();
-    private playerIsOnGround: boolean = true; // 是否在地面上
     public canMoveEnbled: boolean = true;// 是否启用，用于外部调用  
     private internalCameraY;
     private capsuleInfo: CapsuleInfo = { // 胶囊体数据,碰撞时使用
@@ -48,7 +47,6 @@ export default class MoveMesh {
         gravity: -50 // 重力
     }) {
         this.mainModel = mainModel;
-
         this.cameraRaycaster.far = 5;
         this.internalCameraY = mainModel.getInternalCameraY();
         this.velocity = new THREE.Vector3(0, mainModel.getInternalCameraY(), 0);
@@ -114,26 +112,18 @@ export default class MoveMesh {
     }
 
 
-    private isFirst = true;
     // 检查是否碰撞
     private checkCollision(deltaTime: number, collider: THREE.Mesh) {
         let { radius, segment } = this.capsuleInfo;
-        this.tempBox.makeEmpty(); // 清空包围盒
-        this.tempMat.copy(collider.matrixWorld).invert(); // 将当前矩阵翻转为它的逆矩阵
+        this.tempBox.makeEmpty();
+        this.tempMat.copy(collider.matrixWorld).invert(); 
         this.tempSegment.copy(segment);
-        // 获取胶囊体在对撞机局部空间中的位置
         this.tempSegment.start.applyMatrix4(this.character.matrixWorld).applyMatrix4(this.tempMat);
         this.tempSegment.end.applyMatrix4(this.character.matrixWorld).applyMatrix4(this.tempMat);
-        // 获取胶囊体的轴对齐边界框
         this.tempBox.expandByPoint(this.tempSegment.start);
         this.tempBox.expandByPoint(this.tempSegment.end);
         this.tempBox.min.addScalar(-radius);
         this.tempBox.max.addScalar(radius);
-        // if (this.isFirst) {
-        //     this.isFirst = false;
-        //     const helper = new THREE.Box3Helper(this.tempBox, new THREE.Color(0, 0, 255));
-        //     this.mainModel.getScene().add(helper)
-        // }
         collider.geometry?.boundsTree?.shapecast({
             intersectsBounds: box => box.intersectsBox(this.tempBox),
             intersectsTriangle: tri => {
@@ -149,58 +139,37 @@ export default class MoveMesh {
                 }
             }
         });
-
-        // 检查后得到胶囊体对撞机的调整位置
-        // 场景碰撞并移动它.tempSegment.start被假定为玩家模型的原点。
         const newPosition = this.tempVector;
         newPosition.copy(this.tempSegment.start).applyMatrix4(collider.matrixWorld);
-        // // 检查对撞机移动了多少
         const deltaVector = this.tempVector2;
         deltaVector.subVectors(newPosition, this.character.position);
         deltaVector.setY(deltaVector.y - 5);
-        // * 0.25
-        // this.playerIsOnGround = deltaVector.y  > Math.abs(deltaTime * this.velocity.y );
-        // this.playerIsOnGround =  this.internalCameraY <= this.velocity.y;
         const offset = Math.max(0.0, deltaVector.length() - 1e-5);
         deltaVector.normalize().multiplyScalar(offset);
-        // 调整player模型位置
         this.character.position.add(deltaVector);
-        // if (!this.playerIsOnGround) {
-        //     deltaVector.normalize();
-        //     this.velocity.addScaledVector(deltaVector, -deltaVector.dot(this.velocity));
-        // } else {
-        //     this.velocity.set(0, this.internalCameraY, 0);
-        // }
     }
 
 
     // 键盘时移动位置
     private keyMoveCharacter(deltaTime: number) {
         if (!this.isCanMove || !this.canMoveEnbled) return;
-        // 控制移动
-        const angle = this.controls.getAzimuthalAngle(); //获得当前的水平旋转，单位为弧度。
+        const angle = this.controls.getAzimuthalAngle(); 
         const ketStatus = this.keyControl.getKeyStatus();
-        // this.velocity.y += this.playerIsOnGround ? 0 : deltaTime * this.options.gravity; // 不在地面的话，每次更新的时候下落
-        // this.character.position.addScaledVector(this.velocity, deltaTime); // 控制下落
-        // if (!this.playerIsOnGround) {
-        //     this.velocity.y += deltaTime * this.options.gravity;
-        //     this.character.position.addScaledVector(this.velocity, deltaTime); // 控制下落
-        // }
         if (ketStatus[ENUM_MOUSE_KEY.keyW]) {
-            this.tempVector.set(0, 0, -1).applyAxisAngle(this.upVector, angle); // 新的向量位置
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.tempVector.set(0, 0, -1).applyAxisAngle(this.upVector, angle);
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
             this.updateCamera();
         }
 
         if (ketStatus[ENUM_MOUSE_KEY.keyS]) {
             this.tempVector.set(0, 0, 1).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
             this.updateCamera();
         }
 
         if (ketStatus[ENUM_MOUSE_KEY.keyA]) {
             this.tempVector.set(-1, 0, 0).applyAxisAngle(this.upVector, angle);
-            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
+            this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
             this.updateCamera();
         }
 
@@ -209,9 +178,7 @@ export default class MoveMesh {
             this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); // 控制自身移动
             this.updateCamera();
         }
-
         this.character.updateMatrixWorld();
-
     }
 
 
