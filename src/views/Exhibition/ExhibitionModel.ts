@@ -237,7 +237,7 @@ export default class ExhibitionModel extends ThreeBase {
 
                 let typeList = [ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.text, ENUM_MESH_TYPE.enter];
                 if (typeList.includes(child.userData.type)) {
-                    let meshAABB = CreateMesh.creatAABBFromMesh({ addMesh: child, name: `collider-${child.name}_002`, },false);
+                    let meshAABB = CreateMesh.creatAABBFromMesh({ addMesh: child, name: `collider-${child.name}_002`, }, false, 1);
                     this.raycasterMeshList.push({
                         meshAABB,
                         name: meshAABB.name,
@@ -249,11 +249,11 @@ export default class ExhibitionModel extends ThreeBase {
                     let mesh = CreateMesh.creatAABBFromMesh({
                         addMesh: child,
                         boxGeometry: {
-                            height: 30,
+                            height: 20,
                         },
                         name: `collider-${child.name}`,
                         position: {
-                            y: 0,
+                            y: 10,
                         }
                     })
                     this.filterClickList.push(mesh.name);
