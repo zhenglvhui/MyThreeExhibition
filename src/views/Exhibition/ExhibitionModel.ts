@@ -237,7 +237,7 @@ export default class ExhibitionModel extends ThreeBase {
 
                 let typeList = [ENUM_MESH_TYPE.click, ENUM_MESH_TYPE.move, ENUM_MESH_TYPE.text, ENUM_MESH_TYPE.enter];
                 if (typeList.includes(child.userData.type)) {
-                    let meshAABB = CreateMesh.creatAABBFromMesh({ addMesh: child, name: `collider-${child.name}_002`, });
+                    let meshAABB = CreateMesh.creatAABBFromMesh({ addMesh: child, name: `collider-${child.name}_002`, },false);
                     this.raycasterMeshList.push({
                         meshAABB,
                         name: meshAABB.name,
@@ -268,6 +268,7 @@ export default class ExhibitionModel extends ThreeBase {
                     this.enterArrow.visible = false;
                 }
                 if (child.name == "天花板") {
+                    // child.children[0].material.color.set('#ff0');
                     this.meshCeiling = child;
                 }
                 if ((child.userData as UserData).type == ENUM_MESH_TYPE.finger) {

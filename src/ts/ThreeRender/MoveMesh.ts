@@ -137,6 +137,7 @@ export default class MoveMesh {
                 const triPoint: THREE.Vector3 = this.tempVector;
                 const capsulePoint: THREE.Vector3 = this.tempVector2;
                 const distance: number = tri.closestPointToSegment(this.tempSegment, triPoint, capsulePoint);
+
                 if (distance < radius) {
                     const depth: number = radius - distance;
                     const direction: THREE.Vector3 = capsulePoint.sub(triPoint).normalize();
@@ -178,7 +179,7 @@ export default class MoveMesh {
             let item = enterKeyList[i];
             if (ketStatus[item.key]) {
                 this.tempVector.set(item.point.x, item.point.y, item.point.z).applyAxisAngle(this.upVector, angle);
-                this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime); 
+                this.character.position.addScaledVector(this.tempVector, this.options.speed * deltaTime);
                 this.updateCamera();
             }
         }

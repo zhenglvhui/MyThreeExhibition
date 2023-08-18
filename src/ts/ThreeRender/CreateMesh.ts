@@ -37,7 +37,7 @@ export default class CreateMesh {
     };
 
     // 创建包围盒
-    static creatAABBFromMesh(params: CreatAABBFromMeshParams): THREE.Mesh {
+    static creatAABBFromMesh(params: CreatAABBFromMeshParams, visible: boolean = true, opacity: number = 0): THREE.Mesh {
         const aabb = new THREE.Box3();
         aabb.setFromObject(params.addMesh);
         let geometry: THREE.BoxGeometry;
@@ -45,14 +45,14 @@ export default class CreateMesh {
         let height = params.boxGeometry?.height ? params.boxGeometry.height : aabb.max.y - aabb.min.y;
         let depth = params.boxGeometry?.depth ? params.boxGeometry.depth : aabb.max.z - aabb.min.z;
         geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 1 });
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: opacity });
         const mesh = new THREE.Mesh(geometry, material);
         let x = params.position?.x ? params.position.x : params.addMesh.position.x;
         let y = params.position?.y ? params.position.y : params.addMesh.position.y;
         let z = params.position?.z ? params.position.z : params.addMesh.position.z;
         mesh.position.set(x, y, z);
         mesh.name = params.name;
-        mesh.visible = false;
+        mesh.visible = visible;
         return mesh;
     }
 
