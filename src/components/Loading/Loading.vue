@@ -1,7 +1,3 @@
-<!--
- * @Date: 2022-04-24 11:39:04
- * @Description: Loading页面
--->
 <template>
   <div class="loadingPage">
     <div class="progessDiv">

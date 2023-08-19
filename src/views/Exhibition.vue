@@ -1,7 +1,3 @@
-<!--
- * @Date: 2022-04-24 11:39:04
- * @Description: 
--->
 <template>
   <div class="Exhibition page">
     <Loading :progress="progress" :isShowLoadingIcon="isShowLoadingIcon" class="loadingPage" v-if="isLoading" @complete="complete" />

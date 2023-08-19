@@ -1,7 +1,3 @@
-<!--
- * @Date: 2022-04-24 11:39:04
- * @Description: 公共模型页面
--->
 <template>
   <div class="page">
     <!-- @click="getCamera" -->
