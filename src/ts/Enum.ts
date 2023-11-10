@@ -38,7 +38,7 @@ enum ENUM_MOUSE_KEY {
   keyS = "KeyS",
   keyA = "KeyA",
   keyD = "KeyD",
-  keyV = "KeyV",
+  keyV = "KeyV", 
   space = "Space"
 }
 
