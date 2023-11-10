@@ -9,7 +9,8 @@ import { ENUM_MOUSE_KEY } from "../Enum";
 import { KeyStatus } from "../interface/commonInterface";
 
 interface CapsuleInfo {
-    radius: number // 胶囊体半径，用于检测、
+    /** 胶囊体半径，用于检测 */
+    radius: number 
     segment: THREE.Line3
 }
 

@@ -1,7 +1,7 @@
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 let instance: MyDRACOLoader | null = null; 
 
-// DRACOLoader 加载器设置成单例模式，否则实列过多会导致内存溢出
+// DRACOLoader 压缩器设置成单例模式，否则实列过多会导致内存溢出
 export default class MyDRACOLoader {
     private dracoLoader!: DRACOLoader;
  

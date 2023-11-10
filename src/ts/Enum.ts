@@ -1,27 +1,38 @@
-// 点光源枚举
+/** 点光源枚举 */
 enum ENUM_LIGHT_HELPER {
-  point = 1, // 点光源
-  spot = 2, // 聚光灯
+  /** 点光源 */
+  point = 1,  
+  /** 聚光灯 */
+  spot = 2,  
 }
 
-// 点击物体移动类型枚举
+/** 点击物体移动类型枚举 */
 enum ENUM_MESH_TYPE {
-  move = "move", // 移动
-  click = "click", // 看向的物体，可点击弹出的物体
-  text = "text", // 文本
-  finger = "finger", // 手指 
-  enter = "enter", // 进入
-  none = "none" // 不存在的类型
+  /** 移动 */
+  move = "move",  
+  /** 看向的物体，可点击弹出的物体 */
+  click = "click",  
+  /** 文本 */
+  text = "text",  
+  /** 手指 */
+  finger = "finger",   
+  /** 进入 */
+  enter = "enter",  
+  /** 不存在的类型 */
+  none = "none"  
 }
 
-// 视图模式
+/** 视图模式 */
 enum ENUM_VIEW_TYPE {
-  internal = "展厅内", // 内部
-  external = "展厅外", //外部
-  vertical = "俯视图", //府视图
+  /**内部 */
+  internal = "展厅内",  
+  /**外部 */
+  external = "展厅外",
+  /**府视图 */
+  vertical = "俯视图",
 }
 
-// 按键快捷键
+/** 按键快捷键 */
 enum ENUM_MOUSE_KEY {
   keyW = "KeyW",
   keyS = "KeyS",

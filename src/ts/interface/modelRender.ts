@@ -20,19 +20,32 @@ type ItControlsObject = {
 };
 
 interface ItCommonRenderItemData {
-    camraPosition?: XYZ;  // 相机的位置 
-    glbUrl?: string;  // 要加载glb路径
-    controlsObject?: ItControlsObject;  // 控制器的限制范围
-    isNeedAmbientLight?: boolean; // 是否需要环境光
-    ambientLightColor?: number; // 环境灯光颜色 
-    ambientIntensity?: number; // 环境光强度
-    isNeedCameraPointLight?: boolean;  // 是否需要相机上的点光源
-    cameraPointLightColor?: number; // 相机上的点光源颜色
-    cameraPointLightIntensity?: number; // 相机上的点光源强度
-    intensityDivided?: number; // 功率要除以的倍数
-    isSelfRotation?: boolean;  // 模型是否自转
-    renderOutputColorSpace?: THREE.ColorSpace; // render颜色类型
-    playAllSpecialAnimateFn?: ItPlayAllSpecialAnimateFn[]; // 动画执行Fn    
+    /** 相机的位置 */
+    camraPosition?: XYZ;    
+    /** 要加载glb路径 */
+    glbUrl?: string;   
+    /** 控制器的限制范围 */
+    controlsObject?: ItControlsObject;   
+    /** 是否需要环境光 */
+    isNeedAmbientLight?: boolean;  
+    /** 环境灯光颜色 */
+    ambientLightColor?: number;   
+    /** 环境光强度 */
+    ambientIntensity?: number;  
+    /** 是否需要相机上的点光源 */
+    isNeedCameraPointLight?: boolean;   
+    /** 相机上的点光源颜色 */
+    cameraPointLightColor?: number;  
+    /** 相机上的点光源强度 */
+    cameraPointLightIntensity?: number;  
+    /** 功率要除以的倍数 */
+    intensityDivided?: number;  
+    /** 模型是否自转 */
+    isSelfRotation?: boolean;   
+    /** render颜色类型 */
+    renderOutputColorSpace?: THREE.ColorSpace;  
+    /** 动画执行Fn */
+    playAllSpecialAnimateFn?: ItPlayAllSpecialAnimateFn[];  
 }
 interface ItCommonRenderData {
     [propName: string]: ItCommonRenderItemData;
@@ -40,12 +53,18 @@ interface ItCommonRenderData {
 
 
 interface MoveCameraTweenParams {
-    movePosition: THREE.Vector3, // 要移动到的位置  
-    targetPosition: THREE.Vector3, // 要看向的位置
-    isInternal?: boolean, //是否内部浏览     
-    cb?: (...arg: any[]) => void, // 回调  
-    updateCb?:(...arg: any[]) => void,//更新回调
-    animateTime?: number // 动画执行时间      
+    /** 要移动到的位置 */
+    movePosition: THREE.Vector3,  
+     /** 要看向的位置 */
+    targetPosition: THREE.Vector3, 
+     /** 是否内部浏览 */
+    isInternal?: boolean,    
+     /** 回调 */
+    cb?: (...arg: any[]) => void, 
+     /** 更新回调 */ 
+    updateCb?:(...arg: any[]) => void,
+     /** 动画执行时间 */
+    animateTime?: number      
 }
 
 interface DestroyModelParams<K extends keyof HTMLElementEventMap> {
@@ -73,19 +92,29 @@ interface ThreeOption {
 }
 
 interface UserData {
-    name: string; // 模型名称
-    type: ENUM_MESH_TYPE, // 触发类型
-    meshName: string; // 要被作用的模型名称
-    meshNameAll: string; // 完整模型
-    text: string; // 文案
+    /** 模型名称  */
+    name: string; 
+    /** 触发类型  */
+    type: ENUM_MESH_TYPE,  
+    /** 要被作用的模型名称  */
+    meshName: string; 
+    /** 完整模型  */
+    meshNameAll: string;  
+    /** 文案  */
+    text: string;
 }
 
 interface MoveMeshOptions {
-    resetPosition: THREE.Vector3,  // 重生点
-    resetY: number,  // 掉落高度 
-    speed: number,// 速度
-    jumpHeight: number, // 跳起高度
-    gravity: number // 重力
+    /** 重生点 */
+    resetPosition: THREE.Vector3,  
+    /** 掉落高度 */
+    resetY: number, 
+    /** 速度 */ 
+    speed: number,
+    /** 跳起高度 */
+    jumpHeight: number, 
+    /** 重力 */
+    gravity: number 
 }
 
 

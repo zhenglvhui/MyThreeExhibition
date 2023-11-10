@@ -3,13 +3,17 @@ import { XYZ } from '../interface/commonInterface';
 import ThreeBase from './ThreeBase';
 
 interface CreatAABBFromMeshParams {
-    addMesh: THREE.Object3D, // 要添加包围盒长宽的元素
+    /**要添加包围盒长宽的元素 */
+    addMesh: THREE.Object3D,
+    /**包围盒的宽高 */
     boxGeometry?: {
         width?: number,
         height?: number,
         depth?: number,
     },
+    /**包围盒名字 */
     name: string,
+    /**包围盒的位置 */
     position?: Partial<XYZ>
 }
 export default class CreateMesh {
@@ -43,7 +47,7 @@ export default class CreateMesh {
         let geometry: THREE.BoxGeometry;
         let width = params.boxGeometry?.width ?? aabb.max.x - aabb.min.x;
         let height = params.boxGeometry?.height ?? aabb.max.y - aabb.min.y;
-        let depth = params.boxGeometry?.depth ??  aabb.max.z - aabb.min.z;
+        let depth = params.boxGeometry?.depth ?? aabb.max.z - aabb.min.z;
         geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: opacity });
         const mesh = new THREE.Mesh(geometry, material);

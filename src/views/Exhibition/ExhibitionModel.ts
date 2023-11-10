@@ -286,7 +286,7 @@ export default class ExhibitionModel extends ThreeBase {
 
             this.collider = MoveMesh.addCollider(this.modelScene);
             // three  render cpu到gpu的渲染过程会完全阻塞浏览器
-            this.renderer.render(this.scene, this.camera);
+            // this.renderer.render(this.scene, this.camera);
             this.controls.target = new THREE.Vector3(0, 0, -1);
             this.exhibitionInsideControls();
             this.sceneUpdate();
